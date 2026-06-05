@@ -1,0 +1,53 @@
+target/
+
+# Maven
+**/target/
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.versionsBackup
+**/pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+bin/
+
+# IntelliJ
+*.iml
+*.iws
+*.ipr
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs and runtime files
+*.log
+*.tmp
+*.temp
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated sources
+/generated-sources/
+/generated-test-sources/
+
+# Spring Boot
+spring-boot-app.jar
+
+# Lombok
+*.class
+
+# Others
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
