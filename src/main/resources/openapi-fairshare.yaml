@@ -1,5 +1,134 @@
+openapi: 3.0.3
+info:
+  title: Expense Splitter API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+
+paths:
+  /welcome:
+    get:
+      tags:
+        - Welcome
+      summary: Welcome endpoint
+      description: Returns a welcome message.
+      operationId: getWelcomeMessage
+
+      responses:
+        '200':
+          description: Welcome message
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WelcomeResponse'
+  /users:
+    post:
+      summary: Create User
+      operationId: createUser
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    get:
+      summary: Get All Users
+      operationId: getUsers
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{userId}:
+    get:
+      summary: Get User
+      operationId: getUser
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+
+  /groups/{groupId}/members:
+
+    post:
+      summary: Add Member
+
+      operationId: addMember
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+
+      responses:
+        '204':
+          description: Added
+
+  /expenses:
+
+    post:
+      summary: Create Expense
+
+      operationId: createExpense
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseRequest'
+
+      responses:
+        '201':
+          description: Created
+
+
 components:
+
   schemas:
+
     User:
       type: object
       properties:
@@ -88,3 +217,11 @@ components:
         amount:
           type: number
           format: double
+
+    WelcomeResponse:
+      type: object
+
+      properties:
+        message:
+          type: string
+          example: Welcome to Expense Splitter API
