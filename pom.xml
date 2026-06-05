@@ -147,10 +147,19 @@
 								${project.basedir}/src/main/resources/openapi-fairshare.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<configOptions>
+								<!-- <sourceFolder>src/main/java</sourceFolder> -->
+								<!-- <dateLibrary>java8</dateLibrary> -->
+								<!-- <java17>true</java17> -->
+								<!-- <userSpringBoot3>true</userSpringBoot3> -->
+								<!--
+								<configPackage>com.fairshare.distributed_expense_splitter.config</configPackage> -->
 								<useJakartaEe>true</useJakartaEe>
 								<!-- Prevents generation of
 								SpringDocConfiguration.java and ApiUtil.java -->
 								<interfaceOnly>false</interfaceOnly>
+								<!-- <delegatePattern>true</delegatePattern> -->
+								<!-- <unhandledException>true</unhandledException> -->
+								<!-- <documentationProvider>springdoc</documentationProvider> -->
 							</configOptions>
 						</configuration>
 					</execution>
