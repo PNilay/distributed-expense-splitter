@@ -42,7 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserDTO'
 
     get:
       summary: Get All Users
@@ -56,7 +56,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/UserDTO'
 
   /users/{userId}:
     get:
@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserDTO'
 
 
   /groups/{groupId}/members:
@@ -129,7 +129,7 @@ components:
 
   schemas:
 
-    User:
+    UserDTO:
       type: object
       properties:
         id:
@@ -156,7 +156,7 @@ components:
         email:
           type: string
 
-    Group:
+    GroupDTO:
       type: object
 
       properties:
