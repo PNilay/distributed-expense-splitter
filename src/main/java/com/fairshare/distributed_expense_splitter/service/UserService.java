@@ -2,7 +2,6 @@ package com.fairshare.distributed_expense_splitter.service;
 
 import com.fairshare.distributed_expense_splitter.entity.User;
 import com.fairshare.distributed_expense_splitter.repository.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
@@ -40,10 +39,15 @@ public class UserService {
     return modelMapper.map(users, new TypeToken<List<UserDTO>>() {}.getType());
   }
 
-  public void deleteUserById(Long userId) throws Exception {
-    if (!userRepository.existsById(userId)) {
-      throw new Exception("Service.USER_NOT_FOUND");
+  public boolean deleteUserById(Long userId) throws Exception {
+    try {
+      if (!userRepository.existsById(userId)) {
+        throw new Exception("Service.USER_NOT_FOUND");
+      }
+      userRepository.deleteById(userId);
+      return true;
+    } catch (Exception e) {
+      throw e;
     }
-    userRepository.deleteById(userId);
   }
 }
