@@ -1,36 +1,47 @@
 package com.fairshare.distributed_expense_splitter.service;
 
-import java.util.ArrayList;
+import com.fairshare.distributed_expense_splitter.entity.User;
+import com.fairshare.distributed_expense_splitter.repository.UserRepository;
 import java.util.List;
-import org.openapitools.model.User;
+import java.util.Optional;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.openapitools.model.UserDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-  private List<User> users;
+  @Autowired
+  private UserRepository userRepository;
 
-  public UserService() {
-    this.users = new ArrayList<User>();
-    this.users.add(new User().id(1L).name("John Doe").email("john.doe  @example.com"));
-    this.users.add(new User().id(2L).name("Jane Smith").email("jane.s@exahd.com"));
-    this.users.add(new User().id(3L).name("Bob Johnson").email("bob.john@example.com"));
+  private ModelMapper modelMapper = new ModelMapper();
+
+  public UserDTO createUser(UserDTO userDto) {
+    return modelMapper.map(
+      userRepository.save(modelMapper.map(userDto, User.class)),
+      UserDTO.class
+    );
   }
 
-  public User createUser(User user) {
-    this.users.add(user);
-    return user;
+  public UserDTO getUserById(Long userId) throws Exception {
+    Optional<User> optional = userRepository.findById(userId);
+    User user = optional.orElseThrow(() ->
+      new Exception("Service.USER_NOT_FOUND")
+    );
+    return modelMapper.map(user, UserDTO.class);
   }
 
-  public User getUserById() {
-    User user = new User();
-    user.setId(1L);
-    user.setName("John Doe");
-    user.setEmail("abc@gmail.com");
-    return user;
+  public List<UserDTO> getAllUsers() {
+    Iterable<User> users = userRepository.findAll();
+    return modelMapper.map(users, new TypeToken<List<UserDTO>>() {}.getType());
   }
 
-  public List<User> getAllUsers() {
-    return this.users;
+  public void deleteUserById(Long userId) throws Exception {
+    if (!userRepository.existsById(userId)) {
+      throw new Exception("Service.USER_NOT_FOUND");
+    }
+    userRepository.deleteById(userId);
   }
 }
