@@ -2,10 +2,12 @@ package com.fairshare.distributed_expense_splitter.service;
 
 import com.fairshare.distributed_expense_splitter.entity.User;
 import com.fairshare.distributed_expense_splitter.repository.UserRepository;
+
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.openapitools.model.CreateUserRequest;
 import org.openapitools.model.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,9 +20,9 @@ public class UserService {
 
   private ModelMapper modelMapper = new ModelMapper();
 
-  public UserDTO createUser(UserDTO userDto) {
+  public UserDTO createUser(CreateUserRequest createUserRequest) {
     return modelMapper.map(
-      userRepository.save(modelMapper.map(userDto, User.class)),
+      userRepository.save(modelMapper.map(createUserRequest, User.class)),
       UserDTO.class
     );
   }

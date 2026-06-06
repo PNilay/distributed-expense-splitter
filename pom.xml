@@ -177,7 +177,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<!-- Prevents generation of
 								SpringDocConfiguration.java and ApiUtil.java -->
-								<interfaceOnly>false</interfaceOnly>
+								<interfaceOnly>true</interfaceOnly>
 								<!-- <delegatePattern>true</delegatePattern> -->
 								<!-- <unhandledException>true</unhandledException> -->
 								<!-- <documentationProvider>springdoc</documentationProvider> -->
