@@ -587,6 +587,9 @@ components:
       properties:
         name:
           type: string
+          minLength: 2   # Automatically generates @Size(min = 2)
+          maxLength: 50  # Automatically generates @Size(max = 50)
+          pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
           type: string
@@ -598,6 +601,9 @@ components:
       properties:
         name:
           type: string
+          minLength: 2   # Automatically generates @Size(min = 2)
+          maxLength: 50  # Automatically generates @Size(max = 50)
+          pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
           type: string
@@ -645,7 +651,10 @@ components:
       properties:
         name:
           type: string
-
+          minLength: 2   # Automatically generates @Size(min = 2)
+          maxLength: 50  # Automatically generates @Size(max = 50)
+          pattern: "^[a-zA-Z\\s'’-]+$"
+          
         description:
           type: string
 

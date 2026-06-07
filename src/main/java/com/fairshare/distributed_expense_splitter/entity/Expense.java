@@ -2,6 +2,9 @@ package com.fairshare.distributed_expense_splitter.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,5 +35,6 @@ public class Expense {
   @Column(nullable = false)
   private Double amount;
 
+  @CreationTimestamp
   private OffsetDateTime createdAt;
 }
