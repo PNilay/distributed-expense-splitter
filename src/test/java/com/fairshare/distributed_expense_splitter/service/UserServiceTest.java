@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.CreateUserRequest;
 import org.openapitools.model.UserDTO;
+import org.openapitools.model.UserStatus;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -25,11 +26,8 @@ class UserServiceTest {
   @InjectMocks
   private UserService userService;
 
-  //   Create User Method Test Cases:
   @Test
   void createUser() {
-    System.out.println("UserServiceTest.createUser");
-
     User user = User
       .builder()
       .id(1L)
@@ -50,7 +48,23 @@ class UserServiceTest {
     assertEquals("alice@example.com", out.getEmail());
   }
 
-  // Get User By ID Method Test Cases:
+  @Test
+  void createUser_setsActiveStatus() {
+    User user = User
+      .builder()
+      .id(10L)
+      .name("Carol")
+      .email("carol@example.com")
+      .status(UserStatus.ACTIVE)
+      .build();
+    when(userRepository.save(any(User.class))).thenReturn(user);
+
+    CreateUserRequest req = new CreateUserRequest("Carol", "carol@example.com");
+    org.openapitools.model.UserDTO dto = userService.createUser(req);
+    assertNotNull(dto);
+    assertEquals(org.openapitools.model.UserStatus.ACTIVE, dto.getStatus());
+  }
+
   @Test
   void getUserByID_Success() throws Exception {
     User u = User.builder().id(2L).name("Bob").email("bob@example.com").build();
@@ -73,7 +87,6 @@ class UserServiceTest {
     assertTrue(ex.getMessage().contains("USER_NOT_FOUND"));
   }
 
-  // Get All Users Method Test Cases:
   @Test
   void getAllUsers_returnsEmptyList() {
     when(userRepository.findAll()).thenReturn(List.of());
@@ -98,7 +111,18 @@ class UserServiceTest {
     assertEquals(u2.getEmail(), list.get(1).getEmail());
   }
 
-  // Delete User By ID Method Test Cases:
+  @Test
+  void getAllUsers_mapsStatuses() {
+    User u1 = User.builder().id(1L).name("A").email("a@e").status(UserStatus.ACTIVE).build();
+    User u2 = User.builder().id(2L).name("B").email("b@e").status(UserStatus.INACTIVE).build();
+    when(userRepository.findAll()).thenReturn(List.of(u1, u2));
+
+    List<org.openapitools.model.UserDTO> list = userService.getAllUsers();
+    assertEquals(2, list.size());
+    assertEquals(org.openapitools.model.UserStatus.ACTIVE, list.get(0).getStatus());
+    assertEquals(org.openapitools.model.UserStatus.INACTIVE, list.get(1).getStatus());
+  }
+
   @Test
   void deleteUserById_Success() throws Exception {
     when(userRepository.existsById(3L)).thenReturn(true);

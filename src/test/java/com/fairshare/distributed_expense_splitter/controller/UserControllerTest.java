@@ -1,18 +1,21 @@
 package com.fairshare.distributed_expense_splitter.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.fairshare.distributed_expense_splitter.entity.ErrorCode;
+import com.fairshare.distributed_expense_splitter.exception.UserException;
+import com.fairshare.distributed_expense_splitter.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fairshare.distributed_expense_splitter.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.model.CreateUserRequest;
+import org.openapitools.model.UpdateUserRequest;
 import org.openapitools.model.UserDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,11 +61,17 @@ class UserControllerTest {
   }
 
   @Test
-  void getUser_returnsNotFoundOnUserNotFound() throws Exception {
+  void getUser_returnsNotFoundOnUserNotFound() throws UserException {
     when(userService.getUserById(6L))
-      .thenThrow(new Exception("Service.USER_NOT_FOUND"));
-    ResponseEntity<UserDTO> res = userController.getUser(6L);
-    assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
+      .thenThrow(
+        new UserException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
+      );
+    assertThrows(
+      UserException.class,
+      () -> {
+        userController.getUser(6L);
+      }
+    );
   }
 
   // Get All Users Method Test Cases:
@@ -101,20 +110,46 @@ class UserControllerTest {
     assertTrue(res.getBody().isEmpty());
   }
 
-    // Delete User By ID Method Test Cases:
-    @Test
-    void deleteUserById_returnsOkOnSuccess() throws Exception {
-        when(userService.deleteUserById(7L)).thenReturn(true);
-        ResponseEntity<String> res = userController.deleteUserById(7L);
-        assertEquals(HttpStatus.OK, res.getStatusCode());
-        assertEquals("User with id 7 deleted successfully.", res.getBody());
-    }   
+  // Update User Method Test Cases:
+  @Test
+  void updateUser_returnsOkOnSuccess() throws Exception {
+    UpdateUserRequest req = new UpdateUserRequest();
+    req.setName("Y");
+    UserDTO dto = new UserDTO();
+    dto.setId(3L);
+    dto.setName("Y");
+    when(userService.updateUser(eq(3L), any())).thenReturn(dto);  
+    ResponseEntity<UserDTO> res = userController.updateUser(3L, req);
+    assertEquals(HttpStatus.OK, res.getStatusCode());
+    assertEquals(3L, res.getBody().getId());
+    assertEquals("Y", res.getBody().getName());
+  }
 
-    @Test
-    void deleteUserById_returnsNotFoundOnUserNotFound() throws Exception {
-        when(userService.deleteUserById(8L)).thenThrow(new Exception("Service.USER_NOT_FOUND"));
-        ResponseEntity<String> res = userController.deleteUserById(8L);
-        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
-    }
+  @Test
+  void updateUser_returnsNotFoundOnUserNotFound() throws UserException {
+    UpdateUserRequest req = new UpdateUserRequest();
+    when(userService.updateUser(eq(4L), any()))
+      .thenThrow(
+        new UserException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
+      );
+    assertThrows(UserException.class, () -> userController.updateUser(4L, req));
+  }
+  // Delete User By ID Method Test Cases:
+  @Test
+  void deleteUserById_returnsOkOnSuccess() throws Exception {
+    when(userService.deleteUserById(7L)).thenReturn(true);
+    ResponseEntity<Void> res = userController.deleteUserById(7L);
+    assertEquals(HttpStatus.NO_CONTENT, res.getStatusCode());
+  }
 
+  @Test
+  void deleteUserById_returnsNotFoundOnUserNotFound() throws UserException {
+    when(userService.deleteUserById(8L))
+      .thenThrow(
+        new UserException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
+      );
+
+      assertThrows(UserException.class, () -> userController.deleteUserById(8L));
+      
+  }
 }
