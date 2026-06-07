@@ -1,0 +1,692 @@
+openapi: 3.0.3
+
+info:
+  title: Expense Splitter API
+  version: 1.2.0
+  description: API for managing users, groups, expenses and balances.
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Welcome
+  - name: Users
+  - name: Groups
+  - name: Expenses
+  - name: Balances
+
+paths:
+
+  /welcome:
+    get:
+      tags:
+        - Welcome
+      summary: Welcome endpoint
+      operationId: getWelcomeMessage
+
+      responses:
+        '200':
+          description: Welcome message
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WelcomeResponse'
+
+  /users:
+
+    post:
+      tags:
+        - Users
+      summary: Create User
+      operationId: createUser
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+
+      responses:
+        '201':
+          description: User created
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+    get:
+      tags:
+        - Users
+      summary: Get All Users
+      operationId: getUsers
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+
+  /users/{userId}:
+
+    get:
+      tags:
+        - Users
+      summary: Get User
+      operationId: getUser
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+    put:
+      tags:
+        - Users
+      summary: Update User
+      operationId: updateUser
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+
+      responses:
+        '200':
+          description: Updated
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+    delete:
+      tags:
+        - Users
+      summary: Delete User
+      operationId: deleteUser
+
+      parameters:
+        - name: userId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '204':
+          description: Deleted
+
+  /groups:
+
+    post:
+      tags:
+        - Groups
+      summary: Create Group
+      operationId: createGroup
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+
+      responses:
+        '201':
+          description: Group created
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDTO'
+
+    get:
+      tags:
+        - Groups
+      summary: Get Groups
+      operationId: getGroups
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/GroupDTO'
+
+  /groups/{groupId}:
+
+    get:
+      tags:
+        - Groups
+      summary: Get Group
+      operationId: getGroup
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDTO'
+
+    put:
+      tags:
+        - Groups
+      summary: Update Group
+      operationId: updateGroup
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupRequest'
+
+      responses:
+        '200':
+          description: Updated
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDTO'
+
+    delete:
+      tags:
+        - Groups
+      summary: Delete Group
+      operationId: deleteGroup
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '204':
+          description: Deleted
+
+  /groups/{groupId}/members:
+
+    post:
+      tags:
+        - Groups
+      summary: Add Member
+      operationId: addMember
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+
+      responses:
+        '204':
+          description: Added
+
+    get:
+      tags:
+        - Groups
+      summary: Get Group Members
+      operationId: getGroupMembers
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+
+  /groups/{groupId}/members/{userId}:
+
+    delete:
+      tags:
+        - Groups
+      summary: Remove Member
+      operationId: removeMember
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+        - name: userId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '204':
+          description: Removed
+
+  /expenses:
+
+    post:
+      tags:
+        - Expenses
+      summary: Create Expense
+      operationId: createExpense
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseRequest'
+
+      responses:
+        '201':
+          description: Expense created
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDTO'
+
+    get:
+      tags:
+        - Expenses
+      summary: Get Expenses
+      operationId: getExpenses
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/ExpenseDTO'
+
+  /expenses/{expenseId}:
+
+    get:
+      tags:
+        - Expenses
+      summary: Get Expense
+      operationId: getExpense
+
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDTO'
+
+    put:
+      tags:
+        - Expenses
+      summary: Update Expense
+      operationId: updateExpense
+
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseRequest'
+
+      responses:
+        '200':
+          description: Updated
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseDTO'
+
+    delete:
+      tags:
+        - Expenses
+      summary: Delete Expense
+      operationId: deleteExpense
+
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '204':
+          description: Deleted
+
+  /groups/{groupId}/expenses:
+
+    get:
+      tags:
+        - Expenses
+      summary: Get Group Expenses
+      operationId: getGroupExpenses
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/ExpenseDTO'
+
+  /groups/{groupId}/balances:
+
+    get:
+      tags:
+        - Balances
+      summary: Get Group Balances
+      operationId: getGroupBalances
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupBalanceResponse'
+
+components:
+
+  schemas:
+
+    WelcomeResponse:
+      type: object
+
+      properties:
+        message:
+          type: string
+          example: Welcome to Expense Splitter API
+
+    UserDTO:
+      type: object
+
+      properties:
+        id:
+          type: integer
+          format: int64
+
+        name:
+          type: string
+
+        email:
+          type: string
+
+    CreateUserRequest:
+      type: object
+
+      required:
+        - name
+        - email
+
+      properties:
+        name:
+          type: string
+
+        email:
+          type: string
+          format: email
+
+    UpdateUserRequest:
+      type: object
+
+      properties:
+        name:
+          type: string
+
+        email:
+          type: string
+          format: email
+
+    GroupDTO:
+      type: object
+
+      properties:
+        id:
+          type: integer
+          format: int64
+
+        name:
+          type: string
+
+        description:
+          type: string
+
+    CreateGroupRequest:
+      type: object
+
+      required:
+        - name
+
+      properties:
+        name:
+          type: string
+
+        description:
+          type: string
+
+    AddMemberRequest:
+      type: object
+
+      required:
+        - userId
+
+      properties:
+        userId:
+          type: integer
+          format: int64
+
+    ExpenseDTO:
+      type: object
+
+      properties:
+        id:
+          type: integer
+          format: int64
+
+        groupId:
+          type: integer
+          format: int64
+
+        paidBy:
+          type: integer
+          format: int64
+
+        description:
+          type: string
+
+        amount:
+          type: number
+          format: double
+
+    CreateExpenseRequest:
+      type: object
+
+      required:
+        - groupId
+        - paidBy
+        - amount
+
+      properties:
+        groupId:
+          type: integer
+          format: int64
+
+        paidBy:
+          type: integer
+          format: int64
+
+        description:
+          type: string
+
+        amount:
+          type: number
+          format: double
+
+    UserBalance:
+      type: object
+
+      properties:
+        userId:
+          type: integer
+          format: int64
+
+        amount:
+          type: number
+          format: double
+
+    GroupBalanceResponse:
+      type: object
+
+      properties:
+        balances:
+          type: array
+
+          items:
+            $ref: '#/components/schemas/UserBalance'
