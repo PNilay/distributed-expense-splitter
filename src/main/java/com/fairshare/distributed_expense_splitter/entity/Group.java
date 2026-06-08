@@ -8,7 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
+
 import org.hibernate.annotations.CreationTimestamp;
+import org.openapitools.model.GroupDTO;
 import org.openapitools.model.GroupStatus;
 
 @Entity
@@ -44,5 +47,22 @@ public class Group {
     joinColumns = @JoinColumn(name = "group_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id")
   )
+  @Singular
   private Set<User> members = new HashSet<>();
+
+  public static GroupDTO fromEntity(Group group) {
+    if (group == null) return null;
+
+    GroupDTO dto = new GroupDTO();
+    dto.setId(group.getId());
+    dto.setName(group.getName());
+    dto.setDescription(group.getDescription());
+    dto.setStatus(group.getStatus());
+    dto.setCreatedAt(group.getCreatedAt());
+    if (group.getCreatedBy() != null) {
+      dto.setCreatedBy(group.getCreatedBy().getId());
+    }
+
+    return dto;
+  }
 }

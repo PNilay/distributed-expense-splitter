@@ -46,7 +46,7 @@ public class UserController implements UsersApi {
   public ResponseEntity<UserDTO> createUser(
     @Valid @RequestBody CreateUserRequest createUserRequest
   ) {
-    LOGGER.info(environment.getProperty("used.create.request", "User creation request received for email {0}"), createUserRequest.getEmail());
+    // LOGGER.info(environment.getProperty("used.create.request", "User creation request received for email {0}"), createUserRequest.getEmail());
     UserDTO res = userService.createUser(createUserRequest);
     return new ResponseEntity<>(res, HttpStatus.CREATED);
   }
@@ -55,7 +55,7 @@ public class UserController implements UsersApi {
   @Override
   @GetMapping("/users/{userId}")
   public ResponseEntity<UserDTO> getUser(@PathVariable("userId") Long userId) {
-    LOGGER.info(environment.getProperty("used.get.request", "User retrieval request received for userId {}"), userId);
+    // LOGGER.info(environment.getProperty("used.get.request", "User retrieval request received for userId {}"), userId);
     UserDTO user = userService.getUserById(userId);
     return ResponseEntity.ok(user);
   }
@@ -64,7 +64,7 @@ public class UserController implements UsersApi {
   @Override
   @GetMapping("/users")
   public ResponseEntity<List<UserDTO>> getUsers() {
-    LOGGER.info(environment.getProperty("used.get.all.request", "User retrieval request received for all users"));
+    // LOGGER.info(environment.getProperty("used.get.all.request", "User retrieval request received for all users"));
     List<UserDTO> users = userService.getAllUsers();
     return ResponseEntity.ok(users);
   }
@@ -75,7 +75,7 @@ public class UserController implements UsersApi {
     @PathVariable("userId") Long userId,
     @Valid @RequestBody UpdateUserRequest updateUserRequest
   ) {
-    LOGGER.info(environment.getProperty("used.update.request", "User update request received for userId {}"), userId);
+    // LOGGER.info(environment.getProperty("used.update.request", "User update request received for userId {}"), userId);
     UserDTO user = userService.updateUser(userId, updateUserRequest);
     return new ResponseEntity<>(user, HttpStatus.OK);
   }
@@ -86,7 +86,7 @@ public class UserController implements UsersApi {
   public ResponseEntity<Void> deleteUserById(
     @PathVariable("userId") Long userId
   ) {
-    LOGGER.info(environment.getProperty("used.delete.request", "User deletion request received for userId {}"), userId);
+    // LOGGER.info(environment.getProperty("used.delete.request", "User deletion request received for userId {}"), userId);
     userService.deleteUserById(userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
