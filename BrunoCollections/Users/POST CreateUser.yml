@@ -1,0 +1,25 @@
+info:
+  name: POST CreateUser
+  type: http
+  seq: 1
+
+http:
+  method: post
+  url: http://localhost:8080/v1/api/users
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Alice Example",
+        "email": "alice@example.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
