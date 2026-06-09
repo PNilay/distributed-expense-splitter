@@ -1,0 +1,15 @@
+info:
+  name: DELETE RemoveMemberFromGroup
+  type: http
+  seq: 1
+
+http:
+  method: delete
+  url: http://localhost:8080/v1/api/groups/1/members/1
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,26 @@
+info:
+  name: POST CreateGroup
+  type: http
+  seq: 1
+
+http:
+  method: post
+  url: http://localhost:8080/v1/api/groups
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Trip",
+        "description": "Weekend trip expenses",
+        "createdBy":3
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

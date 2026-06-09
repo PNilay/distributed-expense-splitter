@@ -1,0 +1,26 @@
+info:
+  name: PUT UpdateGroup
+  type: http
+  seq: 1
+
+http:
+  method: put
+  url: http://localhost:8080/v1/api/groups/1
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Trip Updated",
+        "description": "Updated description",
+        "createdBy":1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

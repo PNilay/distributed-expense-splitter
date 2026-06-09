@@ -1,0 +1,25 @@
+info:
+  name: PUT UserByID
+  type: http
+  seq: 1
+
+http:
+  method: put
+  url: http://localhost:8080/v1/api/users/1
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Alice Updated",
+        "email": "alice.new@example.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

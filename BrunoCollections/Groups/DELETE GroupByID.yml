@@ -1,0 +1,15 @@
+info:
+  name: DELETE GroupByID
+  type: http
+  seq: 1
+
+http:
+  method: delete
+  url: http://localhost:8080/v1/api/groups/%3CGROUP_ID%3E
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
