@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.openapitools.model.CreateGroupRequest;
 import org.openapitools.model.GroupDTO;
 import org.openapitools.model.GroupStatus;

@@ -10,8 +10,6 @@ import org.openapitools.model.AddMemberRequest;
 import org.openapitools.model.CreateGroupRequest;
 import org.openapitools.model.GroupDTO;
 import org.openapitools.model.UserDTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +20,9 @@ public class GroupController implements GroupsApi {
 
   private final GroupService groupService;
 
-  @Autowired
-  public GroupController(GroupService groupService, Environment environment) {
+  public GroupController(GroupService groupService) {
     this.groupService = groupService;
-    this.environment = environment;
   }
-
-  private final Environment environment;
 
   private static final Logger LOGGER = LogManager.getLogger(
     GroupController.class
@@ -50,12 +44,7 @@ public class GroupController implements GroupsApi {
   @GetMapping("/groups")
   @Override
   public ResponseEntity<List<GroupDTO>> getGroups() {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.list.request",
-    //     "Group list retrieval request received"
-    //   )
-    // );
+    LOGGER.info("Group list retrieval request received");
     List<GroupDTO> list = groupService.getGroups();
     return ResponseEntity.ok(list);
   }
@@ -65,13 +54,7 @@ public class GroupController implements GroupsApi {
   public ResponseEntity<GroupDTO> getGroup(
     @PathVariable("groupId") Long groupId
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.get.request",
-    //     "Group retrieval request received for groupId {}"
-    //   ),
-    //   groupId
-    // );
+    LOGGER.info("Group retrieval request received for groupId {}", groupId);
     GroupDTO dto = groupService.getGroup(groupId);
     return ResponseEntity.ok(dto);
   }
@@ -82,13 +65,7 @@ public class GroupController implements GroupsApi {
     @PathVariable("groupId") Long groupId,
     @Valid @RequestBody CreateGroupRequest req
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.update.request",
-    //     "Group update request received for groupId {}"
-    //   ),
-    //   groupId
-    // );
+    LOGGER.info("Group update request received for groupId {}", groupId);
     GroupDTO dto = groupService.updateGroup(groupId, req);
     return ResponseEntity.ok(dto);
   }
@@ -98,13 +75,7 @@ public class GroupController implements GroupsApi {
   public ResponseEntity<Void> deleteGroup(
     @PathVariable("groupId") Long groupId
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.delete.request",
-    //     "Group deletion request received for groupId {}"
-    //   ),
-    //   groupId
-    // );
+    LOGGER.info("Group deletion request received for groupId {}", groupId);
     groupService.deleteGroup(groupId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -114,13 +85,10 @@ public class GroupController implements GroupsApi {
   public ResponseEntity<List<UserDTO>> getGroupMembers(
     @PathVariable("groupId") Long groupId
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.members.request",
-    //     "Group members retrieval request received for groupId {}"
-    //   ),
-    //   groupId
-    // );
+    LOGGER.info(
+      "Group members retrieval request received for groupId {}",
+      groupId
+    );
     List<UserDTO> members = groupService.getGroupMembers(groupId);
     return ResponseEntity.ok(members);
   }
@@ -131,14 +99,11 @@ public class GroupController implements GroupsApi {
     @PathVariable("groupId") Long groupId,
     @Valid @RequestBody AddMemberRequest addMemberRequest
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.add.member.request",
-    //     "Add member request received for groupId {} and userId {}"
-    //   ),
-    //   groupId,
-    //   addMemberRequest.getUserId()
-    // );
+    LOGGER.info(
+      "Add member request received for groupId {} and userId {}",
+      groupId,
+      addMemberRequest.getUserId()
+    );
     groupService.addMember(groupId, addMemberRequest.getUserId());
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
@@ -148,14 +113,11 @@ public class GroupController implements GroupsApi {
     @PathVariable("groupId") Long groupId,
     @PathVariable("userId") Long userId
   ) {
-    // LOGGER.info(
-    //   environment.getProperty(
-    //     "used.remove.member.request",
-    //     "Remove member request received for groupId {} and userId {}"
-    //   ),
-    //   groupId,
-    //   userId
-    // );
+    LOGGER.info(
+      "Remove member request received for groupId {} and userId {}",
+      groupId,
+      userId
+    );
     groupService.removeMember(groupId, userId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
