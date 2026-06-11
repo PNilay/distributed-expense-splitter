@@ -477,8 +477,7 @@ paths:
         '204':
           description: Deleted
 
-  /groups/{groupId}/expenses:
-
+  /expenses/group/{groupId}:
     get:
       tags:
         - Expenses
@@ -719,7 +718,7 @@ components:
 
         expenseDate:
           type: string
-          format: date
+          format: date-time
 
         splits:
           type: array
