@@ -712,6 +712,11 @@ components:
 
         currency:
           type: string
+          minLength: 3
+          maxLength: 3
+          pattern: '^[A-Z]{3}$'
+          description: 'The 3-letter ISO 4217 currency code.'
+          example: 'USD'
 
         notes:
           type: string
@@ -744,6 +749,9 @@ components:
         - groupId
         - paidBy
         - amount
+        - currency
+        - splits
+        - expenseDate
 
       properties:
         groupId:
@@ -764,6 +772,25 @@ components:
         category:
           $ref: '#/components/schemas/ExpenseCategory'
 
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          pattern: '^[A-Z]{3}$'
+          description: 'The 3-letter ISO 4217 currency code.'
+          example: 'USD'
+
+        notes:
+          type: string
+
+        expenseDate:
+          type: string
+          format: date-time
+
+        splits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpenseSplitDTO'
     UserBalance:
       type: object
 
