@@ -1,0 +1,15 @@
+info:
+  name: DELETE ExpenseByID
+  type: http
+  seq: 1
+
+http:
+  method: delete
+  url: http://localhost:8080/v1/api/expenses/1
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

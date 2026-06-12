@@ -1,0 +1,18 @@
+info:
+  name: GET All Expenses
+  type: http
+  seq: 1
+
+http:
+  method: get
+  url: http://localhost:8080/v1/api/expenses
+  headers:
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
