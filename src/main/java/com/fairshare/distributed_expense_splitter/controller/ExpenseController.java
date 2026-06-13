@@ -35,6 +35,7 @@ public class ExpenseController implements ExpensesApi {
       "Expense creation request request recived for group_id = ",
       createExpenseRequest.getGroupId()
     );
+
     ExpenseDTO res = expenseService.createExpense(createExpenseRequest);
     return new ResponseEntity<>(res, HttpStatus.CREATED);
   }
