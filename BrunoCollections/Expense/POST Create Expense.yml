@@ -1,0 +1,27 @@
+info:
+  name: POST Create Expense
+  type: http
+  seq: 1
+
+http:
+  method: post
+  url: http://localhost:8080/v1/api/expenses
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "groupId": 1,
+        "paidBy": 1,
+        "amount": 123.45,
+        "description": "Dinner"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: false
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

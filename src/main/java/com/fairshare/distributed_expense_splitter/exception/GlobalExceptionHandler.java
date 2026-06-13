@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     GlobalExceptionHandler.class
   );
 
-  @ExceptionHandler({UserException.class, GroupException.class})
+  @ExceptionHandler({UserException.class, GroupException.class, ExpenseException.class})
   public ResponseEntity<ErrorResponse> handleNotFound(
     UserException ex,
     HttpServletRequest request
