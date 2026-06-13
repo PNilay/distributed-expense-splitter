@@ -1,5 +1,6 @@
 package com.fairshare.distributed_expense_splitter.service;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.fairshare.distributed_expense_splitter.entity.Group;
@@ -43,8 +44,9 @@ class ExpenseServiceTest {
     req.setAmount(12.5);
     req.setDescription("d");
 
-    expenseService.createExpense(req);
+    var resp = expenseService.createExpense(req);
 
     verify(expenseRepository).save(any());
+    assertEquals(org.springframework.http.HttpStatus.CREATED.value(), resp.getStatusCode().value());
   }
 }

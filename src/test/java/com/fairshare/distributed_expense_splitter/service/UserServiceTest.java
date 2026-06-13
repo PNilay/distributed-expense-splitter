@@ -41,11 +41,14 @@ class UserServiceTest {
       "alice@example.com"
     );
 
-    UserDTO out = userService.createUser(createUserRequest);
+    var out = userService.createUser(createUserRequest);
     assertNotNull(out);
-    assertEquals(1L, out.getId());
-    assertEquals("Alice", out.getName());
-    assertEquals("alice@example.com", out.getEmail());
+    assertEquals(org.springframework.http.HttpStatus.CREATED.value(), out.getStatusCode().value());
+    UserDTO body = out.getBody();
+    assertNotNull(body);
+    assertEquals(1L, body.getId());
+    assertEquals("Alice", body.getName());
+    assertEquals("alice@example.com", body.getEmail());
   }
 
   @Test
@@ -60,7 +63,10 @@ class UserServiceTest {
     when(userRepository.save(any(User.class))).thenReturn(user);
 
     CreateUserRequest req = new CreateUserRequest("Carol", "carol@example.com");
-    org.openapitools.model.UserDTO dto = userService.createUser(req);
+    var resp = userService.createUser(req);
+    assertNotNull(resp);
+    assertEquals(org.springframework.http.HttpStatus.CREATED.value(), resp.getStatusCode().value());
+    org.openapitools.model.UserDTO dto = resp.getBody();
     assertNotNull(dto);
     assertEquals(org.openapitools.model.UserStatus.ACTIVE, dto.getStatus());
   }
@@ -127,9 +133,9 @@ class UserServiceTest {
   void deleteUserById_Success() throws Exception {
     when(userRepository.existsById(3L)).thenReturn(true);
     doNothing().when(userRepository).deleteById(3L);
-    boolean result = userService.deleteUserById(3L);
+    var result = userService.deleteUserById(3L);
     verify(userRepository).deleteById(3L);
-    assertTrue(result);
+    assertEquals(org.springframework.http.HttpStatus.NO_CONTENT.value(), result.getStatusCode().value());
   }
 
   @Test

@@ -37,8 +37,10 @@ class GroupServiceTest {
     Group g = Group.builder().id(20L).name("G20").description("d").build();
     when(groupRepository.findById(20L)).thenReturn(Optional.of(g));
 
-    GroupDTO dto = groupService.getGroup(20L);
-
+    var resp = groupService.getGroup(20L);
+    assertNotNull(resp);
+    assertEquals(org.springframework.http.HttpStatus.OK.value(), resp.getStatusCode().value());
+    GroupDTO dto = resp.getBody();
     assertNotNull(dto);
     assertEquals(20L, dto.getId());
     assertEquals("G20", dto.getName());
@@ -61,7 +63,11 @@ class GroupServiceTest {
     req.setName("New");
     req.setDescription("newdesc");
 
-    GroupDTO res = groupService.updateGroup(30L, req);
+    var resp = groupService.updateGroup(30L, req);
+    assertNotNull(resp);
+    assertEquals(org.springframework.http.HttpStatus.OK.value(), resp.getStatusCode().value());
+    GroupDTO res = resp.getBody();
+    assertNotNull(res);
     assertEquals(30L, res.getId());
     assertEquals("New", res.getName());
     assertEquals("newdesc", res.getDescription());
@@ -72,9 +78,10 @@ class GroupServiceTest {
     when(groupRepository.existsById(40L)).thenReturn(true);
     doNothing().when(groupRepository).deleteById(40L);
 
-    groupService.deleteGroup(40L);
+    var resp = groupService.deleteGroup(40L);
 
     verify(groupRepository).deleteById(40L);
+    assertEquals(org.springframework.http.HttpStatus.NO_CONTENT.value(), resp.getStatusCode().value());
   }
 
   @Test
@@ -92,7 +99,10 @@ class GroupServiceTest {
     Group g = Group.builder().id(50L).name("G50").members(members).build();
     when(groupRepository.findById(50L)).thenReturn(Optional.of(g));
 
-    java.util.List<UserDTO> list = groupService.getGroupMembers(50L);
+    var resp = groupService.getGroupMembers(50L);
+    assertNotNull(resp);
+    assertEquals(org.springframework.http.HttpStatus.OK.value(), resp.getStatusCode().value());
+    java.util.List<UserDTO> list = resp.getBody();
     assertEquals(1, list.size());
     assertEquals(51L, list.get(0).getId());
   }
@@ -107,9 +117,10 @@ class GroupServiceTest {
     when(userRepository.findById(61L)).thenReturn(Optional.of(u));
     when(groupRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-    groupService.removeMember(60L, 61L);
+    var resp = groupService.removeMember(60L, 61L);
 
     verify(groupRepository).save(g);
+    assertEquals(org.springframework.http.HttpStatus.NO_CONTENT.value(), resp.getStatusCode().value());
     assertTrue(g.getMembers().isEmpty());
   }
 
