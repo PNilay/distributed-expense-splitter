@@ -8,27 +8,34 @@ import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.openapitools.api.UsersApiDelegate;
 import org.openapitools.model.CreateUserRequest;
 import org.openapitools.model.UpdateUserRequest;
 import org.openapitools.model.UserDTO;
 import org.openapitools.model.UserStatus;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserService implements UsersApiDelegate {
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   private ModelMapper modelMapper = new ModelMapper();
 
-  public UserDTO createUser(CreateUserRequest createUserRequest)
+  public UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
+
+  @Override
+  public ResponseEntity<UserDTO> createUser(CreateUserRequest createUserRequest)
     throws UserException {
     User user = modelMapper.map(createUserRequest, User.class);
     user.setStatus(UserStatus.ACTIVE);
     User saved = userRepository.save(user);
-    return modelMapper.map(saved, UserDTO.class);
+    UserDTO dto = modelMapper.map(saved, UserDTO.class);
+    return ResponseEntity.status(HttpStatus.CREATED).body(dto);
   }
 
   public UserDTO getUserById(Long userId) throws UserException {
@@ -44,7 +51,8 @@ public class UserService {
     return modelMapper.map(users, new TypeToken<List<UserDTO>>() {}.getType());
   }
 
-  public boolean deleteUserById(Long userId) throws UserException {
+  @Override
+  public ResponseEntity<Void> deleteUserById(Long userId) throws UserException {
     if (!userRepository.existsById(userId)) {
       throw new UserException(
         "Service.USER_NOT_FOUND",
@@ -52,10 +60,11 @@ public class UserService {
       );
     }
     userRepository.deleteById(userId);
-    return true;
+    return ResponseEntity.noContent().build();
   }
 
-  public UserDTO updateUser(Long userId, UpdateUserRequest updateUserRequest) {
+  @Override
+  public ResponseEntity<UserDTO> updateUser(Long userId, UpdateUserRequest updateUserRequest) {
     User user = userRepository
       .findById(userId)
       .orElseThrow(() ->
@@ -70,6 +79,20 @@ public class UserService {
     }
 
     User saved = userRepository.save(user);
-    return modelMapper.map(saved, UserDTO.class);
+    UserDTO dto = modelMapper.map(saved, UserDTO.class);
+    return ResponseEntity.ok(dto);
   }
+
+  @Override
+  public ResponseEntity<UserDTO> getUser(Long userId) throws UserException {
+    UserDTO dto = getUserById(userId);
+    return ResponseEntity.ok(dto);
+  }
+
+  @Override
+  public ResponseEntity<List<UserDTO>> getUsers() {
+    List<UserDTO> list = getAllUsers();
+    return ResponseEntity.ok(list);
+  }
+
 }

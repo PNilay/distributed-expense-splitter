@@ -1,6 +1,5 @@
 package com.fairshare.distributed_expense_splitter.service;
 
-import com.fairshare.distributed_expense_splitter.controller.ExpenseController;
 import com.fairshare.distributed_expense_splitter.entity.ErrorCode;
 import com.fairshare.distributed_expense_splitter.entity.Expense;
 import com.fairshare.distributed_expense_splitter.entity.ExpenseSplit;
@@ -15,32 +14,38 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openapitools.api.ExpensesApiDelegate;
 import org.openapitools.model.CreateExpenseRequest;
 import org.openapitools.model.ExpenseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ExpenseService {
+public class ExpenseService implements ExpensesApiDelegate{
 
   private static final Logger LOGGER = LogManager.getLogger(
-    ExpenseController.class
+    ExpenseService.class
   );
 
-  @Autowired
-  private ExpenseRepository expenseRepository;
+  private final ExpenseRepository expenseRepository;
 
-  @Autowired
-  private GroupRepository groupRepository;
+  private final GroupRepository groupRepository;
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  public ExpenseDTO createExpense(CreateExpenseRequest req)
+  public ExpenseService(ExpenseRepository expenseRepository, GroupRepository groupRepository, UserRepository userRepository) {
+    this.expenseRepository = expenseRepository;
+    this.groupRepository = groupRepository;
+    this.userRepository = userRepository;
+  }
+
+  @Override
+  public ResponseEntity<ExpenseDTO> createExpense(CreateExpenseRequest req)
     throws ExpenseException {
     Expense e = fromExpenseDTO(req);
     Expense res = expenseRepository.save(e);
-    return Expense.fromEntity(res);
+    return ResponseEntity.status(HttpStatus.CREATED).body(Expense.fromEntity(res));
   }
 
   public Expense fromExpenseDTO(CreateExpenseRequest expenseDto) {
@@ -89,13 +94,16 @@ public class ExpenseService {
     return expense;
   }
 
-  public List<ExpenseDTO> getExpenses() {
+  @Override
+  public ResponseEntity<List<ExpenseDTO>> getExpenses() {
     List<Expense> list = expenseRepository.findAll();
 
-    return list.stream().map(expense -> Expense.fromEntity(expense)).toList();
+    List<ExpenseDTO> dtoList = list.stream().map(expense -> Expense.fromEntity(expense)).toList();
+    return ResponseEntity.ok(dtoList);
   }
 
-  public ExpenseDTO getExpense(Long expenseId) throws ExpenseException {
+  @Override
+  public ResponseEntity<ExpenseDTO> getExpense(Long expenseId) throws ExpenseException {
     Expense e = expenseRepository
       .findById(expenseId)
       .orElseThrow(() ->
@@ -104,10 +112,11 @@ public class ExpenseService {
           ErrorCode.EXPENSE_NOT_FOUND
         )
       );
-    return Expense.fromEntity(e);
+    return ResponseEntity.ok(Expense.fromEntity(e));
   }
 
-  public ExpenseDTO updateExpense(Long expenseId, CreateExpenseRequest req)
+  @Override
+  public ResponseEntity<ExpenseDTO> updateExpense(Long expenseId, CreateExpenseRequest req)
     throws ExpenseException {
     Expense e = expenseRepository
       .findById(expenseId)
@@ -146,18 +155,22 @@ public class ExpenseService {
     if (req.getDescription() != null) {
       e.setDescription(req.getDescription());
     }
-    return Expense.fromEntity(expenseRepository.save(e));
+    Expense saved = expenseRepository.save(e);
+    return ResponseEntity.ok(Expense.fromEntity(saved));
   }
 
-  public void deleteExpense(Long expenseId) throws ExpenseException {
+  @Override
+  public ResponseEntity<Void> deleteExpense(Long expenseId) throws ExpenseException {
     if (!expenseRepository.existsById(expenseId)) throw new ExpenseException(
       "Service.EXPENSE_NOT_FOUND",
       ErrorCode.EXPENSE_NOT_FOUND
     );
     expenseRepository.deleteById(expenseId);
+    return ResponseEntity.noContent().build();
   }
 
-  public List<ExpenseDTO> getGroupExpenses(Long groupId) {
+  @Override
+  public ResponseEntity<List<ExpenseDTO>> getGroupExpenses(Long groupId) {
     groupRepository
       .findById(groupId)
       .orElseThrow(() ->
@@ -168,6 +181,7 @@ public class ExpenseService {
       );
     List<Expense> list = expenseRepository.findByGroupId(groupId);
 
-    return list.stream().map(expense -> Expense.fromEntity(expense)).toList();
+    List<ExpenseDTO> dtoList = list.stream().map(expense -> Expense.fromEntity(expense)).toList();
+    return ResponseEntity.ok(dtoList);
   }
 }

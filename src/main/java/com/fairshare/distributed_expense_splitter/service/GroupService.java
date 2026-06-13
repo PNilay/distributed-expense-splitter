@@ -11,25 +11,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.modelmapper.ModelMapper;
+import org.openapitools.api.GroupsApiDelegate;
+import org.openapitools.model.AddMemberRequest;
 import org.openapitools.model.CreateGroupRequest;
 import org.openapitools.model.GroupDTO;
 import org.openapitools.model.GroupStatus;
 import org.openapitools.model.UserDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GroupService {
+public class GroupService implements GroupsApiDelegate {
 
-  @Autowired
-  private GroupRepository groupRepository;
+  private final GroupRepository groupRepository;
 
-  @Autowired
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
 
   private ModelMapper modelMapper = new ModelMapper();
 
-  public GroupDTO createGroup(CreateGroupRequest req) throws UserException {
+  public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+    this.groupRepository = groupRepository;
+    this.userRepository = userRepository;
+  }
+
+  @Override
+  public ResponseEntity<GroupDTO> createGroup(CreateGroupRequest req) throws UserException {
     User creator = userRepository
       .findById(req.getCreatedBy())
       .orElseThrow(() ->
@@ -46,28 +53,33 @@ public class GroupService {
       .build();
     Group saved = groupRepository.save(g);
 
-    return Group.fromEntity(saved);
+    return ResponseEntity.status(HttpStatus.CREATED).body(Group.fromEntity(saved));
   }
 
-  public List<GroupDTO> getGroups() {
+  @Override
+  public ResponseEntity<List<GroupDTO>> getGroups() {
     List<Group> groups = groupRepository.findAll();
 
-    return groups
+    List<GroupDTO> dtoList = groups
       .stream()
       .map(group -> Group.fromEntity(group))
       .toList();
+
+    return ResponseEntity.ok(dtoList);
   }
 
-  public GroupDTO getGroup(Long groupId) throws GroupException {
+  @Override
+  public ResponseEntity<GroupDTO> getGroup(Long groupId) throws GroupException {
     Group g = groupRepository
       .findById(groupId)
       .orElseThrow(() ->
         new GroupException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND)
       );
-    return Group.fromEntity(g);
+    return ResponseEntity.ok(Group.fromEntity(g));
   }
 
-  public GroupDTO updateGroup(Long groupId, CreateGroupRequest req)
+  @Override
+  public ResponseEntity<GroupDTO> updateGroup(Long groupId, CreateGroupRequest req)
     throws GroupException {
     Group g = groupRepository
       .findById(groupId)
@@ -79,18 +91,21 @@ public class GroupService {
     if (req.getDescription() != null) g.setDescription(req.getDescription());
 
     Group saved = groupRepository.save(g);
-    return Group.fromEntity(saved);
+    return ResponseEntity.ok(Group.fromEntity(saved));
   }
 
-  public void deleteGroup(Long groupId) throws GroupException {
+  @Override
+  public ResponseEntity<Void> deleteGroup(Long groupId) throws GroupException {
     if (!groupRepository.existsById(groupId)) throw new GroupException(
       "Service.GROUP_NOT_FOUND",
       ErrorCode.GROUP_NOT_FOUND
     );
     groupRepository.deleteById(groupId);
+    return ResponseEntity.noContent().build();
   }
 
-  public List<UserDTO> getGroupMembers(Long groupId) throws GroupException {
+  @Override
+  public ResponseEntity<List<UserDTO>> getGroupMembers(Long groupId) throws GroupException {
     Group group = groupRepository
       .findById(groupId)
       .orElseThrow(() ->
@@ -98,18 +113,22 @@ public class GroupService {
       );
 
     Set<User> members = group.getMembers();
-    return members
+    List<UserDTO> dtoList = members
       .stream()
       .map(user -> modelMapper.map(user, UserDTO.class))
       .toList();
+
+    return ResponseEntity.ok(dtoList);
   }
 
-  public void addMember(Long groupId, Long userId)
+  @Override
+  public ResponseEntity<Void> addMember(Long groupId, AddMemberRequest addMemberRequest)
     throws GroupException, UserException {
     Optional<Group> gOpt = groupRepository.findById(groupId);
     Group group = gOpt.orElseThrow(() ->
       new GroupException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND)
     );
+    Long userId = addMemberRequest.getUserId();
     Optional<User> uOpt = userRepository.findById(userId);
     User user = uOpt.orElseThrow(() ->
       new UserException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
@@ -125,11 +144,20 @@ public class GroupService {
       );
     }
 
-    group.getMembers().add(user);
+    Set<User> members = group.getMembers();
+    if (members == null) {
+      members = new java.util.HashSet<>();
+    } else if (!(members instanceof java.util.HashSet)) {
+      members = new java.util.HashSet<>(members);
+    }
+    members.add(user);
+    group.setMembers(members);
     groupRepository.save(group);
+    return ResponseEntity.noContent().build();
   }
 
-  public void removeMember(Long groupId, Long userId)
+  @Override
+  public ResponseEntity<Void> removeMember(Long groupId, Long userId)
     throws GroupException, UserException {
     Group group = groupRepository
       .findById(groupId)
@@ -151,7 +179,15 @@ public class GroupService {
       );
     }
 
-    group.getMembers().removeIf(u -> u.getId().equals(user.getId()));
+    Set<User> members = group.getMembers();
+    if (members == null) {
+      members = new java.util.HashSet<>();
+    } else if (!(members instanceof java.util.HashSet)) {
+      members = new java.util.HashSet<>(members);
+    }
+    members.removeIf(u -> u.getId().equals(user.getId()));
+    group.setMembers(members);
     groupRepository.save(group);
+    return ResponseEntity.noContent().build();
   }
 }
