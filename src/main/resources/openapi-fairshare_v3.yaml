@@ -683,6 +683,14 @@ components:
         - UTILITIES
         - SHOPPING
         - OTHER
+    SplitType:
+      type: string 
+
+      enum:
+        - EQUAL
+        - EXACT
+        - PERCENTAGE
+        - SHARE
 
     ExpenseDTO:
       type: object
@@ -725,6 +733,9 @@ components:
           type: string
           format: date-time
 
+        splitType:
+          $ref: '#/components/schemas/SplitType'
+
         splits:
           type: array
           items:
@@ -742,6 +753,24 @@ components:
           type: number
           format: double
 
+        percentage:
+          type: number
+          format: double
+          writeOnly: true
+        
+        share:
+          type: integer
+          writeOnly: true
+
+      required:
+        - userId 
+      
+      anyOf:
+        - required: [amount]
+        - required: [percentage]
+        - required: [share]
+
+
     CreateExpenseRequest:
       type: object
 
@@ -752,6 +781,7 @@ components:
         - currency
         - splits
         - expenseDate
+        - splitType
 
       properties:
         groupId:
@@ -786,6 +816,9 @@ components:
         expenseDate:
           type: string
           format: date-time
+
+        splitType:
+          $ref: '#/components/schemas/SplitType'
 
         splits:
           type: array

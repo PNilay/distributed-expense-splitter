@@ -7,17 +7,20 @@ import com.fairshare.distributed_expense_splitter.entity.ExpenseSplit;
 import com.fairshare.distributed_expense_splitter.entity.Group;
 import com.fairshare.distributed_expense_splitter.entity.User;
 import com.fairshare.distributed_expense_splitter.exception.ExpenseException;
+import com.fairshare.distributed_expense_splitter.helper.ExpenseValidator;
 import com.fairshare.distributed_expense_splitter.repository.ExpenseRepository;
 import com.fairshare.distributed_expense_splitter.repository.GroupRepository;
 import com.fairshare.distributed_expense_splitter.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openapitools.model.CreateExpenseRequest;
 import org.openapitools.model.ExpenseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.openapitools.model.ExpenseSplitDTO;
+import org.openapitools.model.SplitType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,34 +30,45 @@ public class ExpenseService {
     ExpenseController.class
   );
 
-  @Autowired
-  private ExpenseRepository expenseRepository;
+  private final ExpenseRepository expenseRepository;
+  private final GroupRepository groupRepository;
+  private final UserRepository userRepository;
+  private final ExpenseValidator expenseValidator;
 
-  @Autowired
-  private GroupRepository groupRepository;
+  ExpenseService(
+    ExpenseValidator expenseValidator,
+    UserRepository userRepository,
+    GroupRepository groupRepository,
+    ExpenseRepository expenseRepository
+  ) {
+    this.expenseValidator = expenseValidator;
+    this.userRepository = userRepository;
+    this.groupRepository = groupRepository;
+    this.expenseRepository = expenseRepository;
+  }
 
-  @Autowired
-  private UserRepository userRepository;
-
+  @Transactional
   public ExpenseDTO createExpense(CreateExpenseRequest req)
     throws ExpenseException {
+    LOGGER.info("Create Expense Request: " + req);
     Expense e = fromExpenseDTO(req);
     Expense res = expenseRepository.save(e);
     return Expense.fromEntity(res);
   }
 
   public Expense fromExpenseDTO(CreateExpenseRequest expenseDto) {
-
-    LOGGER.info("Input Expense: "+ expenseDto);
     Optional<Group> gOpt = groupRepository.findById(expenseDto.getGroupId());
     Group group = gOpt.orElseThrow(() ->
       new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND)
     );
 
-    Optional<User> uOpt = userRepository.findById(expenseDto.getPaidBy());
-    User paidBy = uOpt.orElseThrow(() ->
-      new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
-    );
+    expenseValidator.validate(expenseDto, group);
+
+    User paidBy = userRepository
+      .findById(expenseDto.getPaidBy())
+      .orElseThrow(() ->
+        new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
+      );
 
     Expense expense = new Expense();
     expense.setGroup(group);
@@ -64,29 +78,76 @@ public class ExpenseService {
     expense.setCategory(expenseDto.getCategory());
     expense.setCurrency(expenseDto.getCurrency());
     expense.setNotes(expenseDto.getNotes());
+    expense.setSplitType(expenseDto.getSplitType());
     expense.setExpenseDate(expenseDto.getExpenseDate());
 
-    expenseDto
-      .getSplits()
-      .stream()
-      .forEach(spiltDto -> {
-        ExpenseSplit res = new ExpenseSplit();
-
-        User splitBy = userRepository
-          .findById(spiltDto.getUserId())
-          .orElseThrow(() ->
-            new ExpenseException(
-              "Service.USER_NOT_FOUND",
-              ErrorCode.USER_NOT_FOUND
-            )
-          );
-
-        res.setUser(splitBy);
-        res.setShareInCents(spiltDto.getAmount());
-        expense.addSplit(res);
-      });
+    expense.addSplits(populateSplitAmounts(expenseDto));
 
     return expense;
+  }
+
+  private List<ExpenseSplit> populateSplitAmounts(
+    CreateExpenseRequest expenseDto
+  ) {
+    List<ExpenseSplit> splits = new ArrayList<>();
+    Double totalAmount = expenseDto.getAmount();
+    SplitType type = expenseDto.getSplitType();
+    List<ExpenseSplitDTO> splitDtos = expenseDto.getSplits();
+    int totalUsers = splitDtos.size();
+
+    switch (type) {
+      case EXACT:
+        for (ExpenseSplitDTO dto : splitDtos) {
+          splits.add(createSplitEntity(dto.getUserId(), dto.getAmount()));
+        }
+        break;
+      case EQUAL:
+        // TO BE UPDATED LATER TO RESOLVE PENNY PROBLEM
+        for (ExpenseSplitDTO dto : splitDtos) {
+          splits.add(
+            createSplitEntity(dto.getUserId(), totalAmount / totalUsers)
+          );
+        }
+        break;
+      case PERCENTAGE:
+        for (ExpenseSplitDTO dto : splitDtos) {
+          splits.add(
+            createSplitEntity(
+              dto.getUserId(),
+              (dto.getPercentage() * totalAmount) / (100.0)
+            )
+          );
+        }
+        break;
+      case SHARE:
+        // TO BE UPDATED!!
+        // Calculate total share
+        int totalShares = splitDtos
+          .stream()
+          .mapToInt(ExpenseSplitDTO::getShare)
+          .sum();
+
+        //Calculate portion: totalAmount * (userShares / totalShares)
+        for (ExpenseSplitDTO dto : splitDtos) {
+          splits.add(
+            createSplitEntity(
+              dto.getUserId(),
+              totalAmount * (double) (dto.getShare() / totalShares)
+            )
+          );
+        }
+        break;
+    }
+
+    return splits;
+  }
+
+  private ExpenseSplit createSplitEntity(Long userId, Double amount) {
+    ExpenseSplit split = new ExpenseSplit();
+    User userProxy = userRepository.getReferenceById(userId);
+    split.setUser(userProxy);
+    split.setShareInCents(amount);
+    return split;
   }
 
   public List<ExpenseDTO> getExpenses() {

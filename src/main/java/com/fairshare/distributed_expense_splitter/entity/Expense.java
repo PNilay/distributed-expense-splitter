@@ -2,6 +2,7 @@ package com.fairshare.distributed_expense_splitter.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.openapitools.model.ExpenseCategory;
 import org.openapitools.model.ExpenseDTO;
+import org.openapitools.model.SplitType;
 
 @Entity
 @Data
@@ -48,10 +50,14 @@ public class Expense {
   private String notes;
 
   @NotNull
+  @PastOrPresent(message = "Expense date cannot be in the future")
   private OffsetDateTime expenseDate;
 
   @CreationTimestamp
   private OffsetDateTime createdAt;
+
+  @NotNull
+  private SplitType splitType;
 
   @OneToMany(
     mappedBy = "expense",
@@ -66,6 +72,12 @@ public class Expense {
     split.setExpense(this);
   }
 
+  public void addSplits(List<ExpenseSplit> newSplits) {
+    if (newSplits != null) {
+        newSplits.forEach(this::addSplit);
+    }
+}
+
   public static ExpenseDTO fromEntity(Expense expense) {
     if (expense == null) return null;
 
@@ -79,6 +91,7 @@ public class Expense {
     dto.setCurrency(expense.getCurrency());
     dto.setNotes(expense.getNotes());
     dto.setExpenseDate(expense.getExpenseDate());
+    dto.setSplitType(expense.getSplitType());
     dto.setSplits(expense.getSplits().stream().map(expenseSplit -> ExpenseSplit.fromEntity(expenseSplit)).toList());
     return dto;
   }
