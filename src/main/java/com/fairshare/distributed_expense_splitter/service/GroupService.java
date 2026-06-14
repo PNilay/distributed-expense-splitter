@@ -125,7 +125,15 @@ public class GroupService {
       );
     }
 
-    group.getMembers().add(user);
+    // make sure members set is mutable before modifying (tests may use singleton sets)
+    Set<User> members = group.getMembers();
+    if (members == null) {
+      members = new java.util.HashSet<>();
+    } else if (!(members instanceof java.util.HashSet)) {
+      members = new java.util.HashSet<>(members);
+    }
+    members.add(user);
+    group.setMembers(members);
     groupRepository.save(group);
   }
 
@@ -151,7 +159,15 @@ public class GroupService {
       );
     }
 
-    group.getMembers().removeIf(u -> u.getId().equals(user.getId()));
+    // make sure members set is mutable before modifying
+    Set<User> members = group.getMembers();
+    if (members == null) {
+      members = new java.util.HashSet<>();
+    } else if (!(members instanceof java.util.HashSet)) {
+      members = new java.util.HashSet<>(members);
+    }
+    members.removeIf(u -> u.getId().equals(user.getId()));
+    group.setMembers(members);
     groupRepository.save(group);
   }
 }

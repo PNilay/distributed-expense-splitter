@@ -50,6 +50,13 @@ public class Group {
   @Singular
   private Set<User> members = new HashSet<>();
 
+  public boolean hasMember(Long memberId){
+    return this.members != null && this.members.stream().anyMatch(mem -> mem.getId().equals(memberId));
+  }
+
+  public int getTotalMemberCount(){
+    return this.members == null ? 0 : this.members.size();
+  }
   public static GroupDTO fromEntity(Group group) {
     if (group == null) return null;
 
