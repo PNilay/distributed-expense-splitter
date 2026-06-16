@@ -27,8 +27,7 @@ import org.springframework.stereotype.Service;
 public class ExpenseService {
 
   private static final Logger LOGGER = LogManager.getLogger(
-    ExpenseController.class
-  );
+      ExpenseController.class);
 
   private final ExpenseRepository expenseRepository;
   private final GroupRepository groupRepository;
@@ -36,11 +35,10 @@ public class ExpenseService {
   private final ExpenseValidator expenseValidator;
 
   ExpenseService(
-    ExpenseValidator expenseValidator,
-    UserRepository userRepository,
-    GroupRepository groupRepository,
-    ExpenseRepository expenseRepository
-  ) {
+      ExpenseValidator expenseValidator,
+      UserRepository userRepository,
+      GroupRepository groupRepository,
+      ExpenseRepository expenseRepository) {
     this.expenseValidator = expenseValidator;
     this.userRepository = userRepository;
     this.groupRepository = groupRepository;
@@ -49,7 +47,7 @@ public class ExpenseService {
 
   @Transactional
   public ExpenseDTO createExpense(CreateExpenseRequest req)
-    throws ExpenseException {
+      throws ExpenseException {
     LOGGER.info("Create Expense Request: " + req);
     Expense e = fromExpenseDTO(req);
     Expense res = expenseRepository.save(e);
@@ -58,17 +56,13 @@ public class ExpenseService {
 
   public Expense fromExpenseDTO(CreateExpenseRequest expenseDto) {
     Optional<Group> gOpt = groupRepository.findById(expenseDto.getGroupId());
-    Group group = gOpt.orElseThrow(() ->
-      new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND)
-    );
+    Group group = gOpt.orElseThrow(() -> new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND));
 
     expenseValidator.validate(expenseDto, group);
 
     User paidBy = userRepository
-      .findById(expenseDto.getPaidBy())
-      .orElseThrow(() ->
-        new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND)
-      );
+        .findById(expenseDto.getPaidBy())
+        .orElseThrow(() -> new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
 
     Expense expense = new Expense();
     expense.setGroup(group);
@@ -86,9 +80,7 @@ public class ExpenseService {
     return expense;
   }
 
-  private List<ExpenseSplit> populateSplitAmounts(
-    CreateExpenseRequest expenseDto
-  ) {
+  private List<ExpenseSplit> populateSplitAmounts(CreateExpenseRequest expenseDto) {
     List<ExpenseSplit> splits = new ArrayList<>();
     Double totalAmount = expenseDto.getAmount();
     SplitType type = expenseDto.getSplitType();
@@ -105,36 +97,31 @@ public class ExpenseService {
         // TO BE UPDATED LATER TO RESOLVE PENNY PROBLEM
         for (ExpenseSplitDTO dto : splitDtos) {
           splits.add(
-            createSplitEntity(dto.getUserId(), totalAmount / totalUsers)
-          );
+              createSplitEntity(dto.getUserId(), totalAmount / totalUsers));
         }
         break;
       case PERCENTAGE:
         for (ExpenseSplitDTO dto : splitDtos) {
           splits.add(
-            createSplitEntity(
-              dto.getUserId(),
-              (dto.getPercentage() * totalAmount) / (100.0)
-            )
-          );
+              createSplitEntity(
+                  dto.getUserId(),
+                  (dto.getPercentage() * totalAmount) / (100.0)));
         }
         break;
       case SHARE:
         // TO BE UPDATED!!
         // Calculate total share
-        int totalShares = splitDtos
-          .stream()
-          .mapToInt(ExpenseSplitDTO::getShare)
-          .sum();
+        double totalShares = splitDtos
+            .stream()
+            .mapToDouble(ExpenseSplitDTO::getShare)
+            .sum();
 
-        //Calculate portion: totalAmount * (userShares / totalShares)
+        // Calculate portion: totalAmount * (userShares / totalShares)
         for (ExpenseSplitDTO dto : splitDtos) {
           splits.add(
-            createSplitEntity(
-              dto.getUserId(),
-              totalAmount * (double) (dto.getShare() / totalShares)
-            )
-          );
+              createSplitEntity(
+                  dto.getUserId(),
+                  totalAmount * (dto.getShare() / totalShares)));
         }
         break;
     }
@@ -152,83 +139,64 @@ public class ExpenseService {
 
   public List<ExpenseDTO> getExpenses() {
     List<Expense> list = expenseRepository.findAll();
-
     return list.stream().map(expense -> Expense.fromEntity(expense)).toList();
   }
 
   public ExpenseDTO getExpense(Long expenseId) throws ExpenseException {
     Expense e = expenseRepository
-      .findById(expenseId)
-      .orElseThrow(() ->
-        new ExpenseException(
-          "Service.EXPENSE_NOT_FOUND",
-          ErrorCode.EXPENSE_NOT_FOUND
-        )
-      );
+        .findById(expenseId)
+        .orElseThrow(() -> new ExpenseException("Service.EXPENSE_NOT_FOUND", ErrorCode.EXPENSE_NOT_FOUND));
     return Expense.fromEntity(e);
   }
 
-  public ExpenseDTO updateExpense(Long expenseId, CreateExpenseRequest req)
-    throws ExpenseException {
-    Expense e = expenseRepository
-      .findById(expenseId)
-      .orElseThrow(() ->
-        new ExpenseException(
-          "Service.EXPENSE_NOT_FOUND",
-          ErrorCode.EXPENSE_NOT_FOUND
-        )
-      );
+  @Transactional
+  public ExpenseDTO updateExpense(Long expenseId, CreateExpenseRequest request) throws ExpenseException {
+    // Check if Expense exists
+    Expense existingExpense = expenseRepository
+        .findById(expenseId)
+        .orElseThrow(() -> new ExpenseException("Service.EXPENSE_NOT_FOUND", ErrorCode.EXPENSE_NOT_FOUND));
 
-    if (req.getGroupId() != null) {
-      Group group = groupRepository
-        .findById(req.getGroupId())
-        .orElseThrow(() ->
-          new ExpenseException(
-            "Service.GROUP_NOT_FOUND",
-            ErrorCode.GROUP_NOT_FOUND
-          )
-        );
-      e.setGroup(group);
+    // Is the user allowed to make chnages (only if the user is part of group!) -->
+    // Require addition field in input
+    // TO BE IMPLEMENTED
+
+    Group existsinGroup = existingExpense.getGroup();
+
+    if (!existsinGroup.getId().equals(request.getGroupId())) {
+      throw new IllegalArgumentException("Moving an expense to a different group is not allowed.");
     }
-    if (req.getPaidBy() != null) {
-      User user = userRepository
-        .findById(req.getPaidBy())
-        .orElseThrow(() ->
-          new ExpenseException(
-            "Service.USER_NOT_FOUND",
-            ErrorCode.USER_NOT_FOUND
-          )
-        );
-      e.setPaidBy(user);
-    }
-    if (req.getAmount() != null) {
-      e.setAmount(req.getAmount());
-    }
-    if (req.getDescription() != null) {
-      e.setDescription(req.getDescription());
-    }
-    return Expense.fromEntity(expenseRepository.save(e));
+
+    expenseValidator.validate(request, existsinGroup);
+    User paidBy = userRepository
+        .findById(request.getPaidBy())
+        .orElseThrow(() -> new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
+
+    existingExpense.setPaidBy(paidBy);
+    existingExpense.setDescription(request.getDescription());
+    existingExpense.setAmount(request.getAmount());
+    existingExpense.setCategory(request.getCategory());
+    existingExpense.setCurrency(request.getCurrency());
+    existingExpense.setNotes(request.getNotes());
+    existingExpense.setSplitType(request.getSplitType());
+    existingExpense.setExpenseDate(request.getExpenseDate());
+
+    existingExpense.getSplits().clear();
+    existingExpense.addSplits(populateSplitAmounts(request));
+
+    return Expense.fromEntity(expenseRepository.save(existingExpense));
   }
 
   public void deleteExpense(Long expenseId) throws ExpenseException {
-    if (!expenseRepository.existsById(expenseId)) throw new ExpenseException(
-      "Service.EXPENSE_NOT_FOUND",
-      ErrorCode.EXPENSE_NOT_FOUND
-    );
+    if (!expenseRepository.existsById(expenseId))
+      throw new ExpenseException("Service.EXPENSE_NOT_FOUND", ErrorCode.EXPENSE_NOT_FOUND);
     expenseRepository.deleteById(expenseId);
   }
 
   public List<ExpenseDTO> getGroupExpenses(Long groupId) {
     groupRepository
-      .findById(groupId)
-      .orElseThrow(() ->
-        new ExpenseException(
-          "Service.GROUP_NOT_FOUND",
-          ErrorCode.GROUP_NOT_FOUND
-        )
-      );
+        .findById(groupId)
+        .orElseThrow(() -> new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND));
     List<Expense> list = expenseRepository.findByGroupId(groupId);
-
     return list.stream().map(expense -> Expense.fromEntity(expense)).toList();
   }
 }

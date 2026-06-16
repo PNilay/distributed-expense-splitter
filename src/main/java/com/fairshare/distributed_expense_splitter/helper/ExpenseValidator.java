@@ -37,9 +37,8 @@ public class ExpenseValidator {
   }
 
   private void validateSplitsAndMath(
-    CreateExpenseRequest request,
-    List<String> errors
-  ) {
+      CreateExpenseRequest request,
+      List<String> errors) {
     List<ExpenseSplitDTO> splits = request.getSplits();
     if (splits == null || splits.isEmpty()) {
       errors.add("Splits cannot be empty.");
@@ -48,10 +47,10 @@ public class ExpenseValidator {
 
     // Check for duplicate user IDs in the splits
     long uniqueUsers = splits
-      .stream()
-      .map(ExpenseSplitDTO::getUserId)
-      .distinct()
-      .count();
+        .stream()
+        .map(ExpenseSplitDTO::getUserId)
+        .distinct()
+        .count();
     if (uniqueUsers != splits.size()) {
       errors.add("Duplicate user IDs found in splits.");
     }
@@ -61,90 +60,62 @@ public class ExpenseValidator {
     if (request.getSplitType() != SplitType.EQUAL) {
       Double sumOfSplits = 0.0;
       Double totalPercentage = 0.0;
-    //   Integer total_shares = 0;
+      // Integer total_shares = 0;
 
       for (ExpenseSplitDTO split : splits) {
         // If using percentages, convert/verify here
         if (request.getSplitType() == SplitType.EXACT) {
           Double tempAmount = split.getAmount();
           if (tempAmount == null || tempAmount < 0) {
-            errors.add(
-              "Split amount provided is invalid for user: " + split.getUserId()
-            );
+            errors.add("Split amount provided is invalid for user: " + split.getUserId());
             continue;
           }
           sumOfSplits += tempAmount;
         } else if (request.getSplitType() == SplitType.PERCENTAGE) {
           Double tempPercentages = split.getPercentage();
           if (tempPercentages == null || tempPercentages < 0) {
-            errors.add(
-              "Split percentages provided is invalid for user: " +
-              split.getUserId()
-            );
+            errors.add("Split percentages provided is invalid for user: " + split.getUserId());
             continue;
           }
           totalPercentage += tempPercentages;
         } else if (request.getSplitType() == SplitType.SHARE) {
           Integer tempShares = split.getShare();
           if (tempShares == null || tempShares < 0) {
-            errors.add(
-              "Split shares provided is invalid for user: " + split.getUserId()
-            );
+            errors.add("Split shares provided is invalid for user: " + split.getUserId());
           }
         }
       }
 
       // Combined Amount Validation (Sum of splits must equal total amount)
-      if (
-        request.getSplitType() == SplitType.PERCENTAGE &&
-        Math.abs(totalPercentage - 100.0) > 0.01
-      ) {
-        errors.add(
-          "Total percentage must equal 100%. Current: " + totalPercentage + "%"
-        );
+      if (request.getSplitType() == SplitType.PERCENTAGE &&
+          Math.abs(totalPercentage - 100.0) > 0.01) {
+        errors.add("Total percentage must equal 100%. Current: " + totalPercentage + "%");
       }
 
-      if (
-        request.getSplitType() == SplitType.EXACT &&
-        sumOfSplits != request.getAmount()
-      ) {
-        errors.add(
-          "Total amount should be equal to " +
-          request.getAmount() +
-          ", current sum: " +
-          sumOfSplits
-        );
+      if (request.getSplitType() == SplitType.EXACT &&
+          sumOfSplits.compareTo(request.getAmount()) != 0) {
+        errors.add("Total amount should be equal to " + request.getAmount() + ", current sum: " + sumOfSplits);
       }
     }
   }
 
   private void validateGroupMembership(
-    CreateExpenseRequest request,
-    Group group,
-    List<String> errors
-  ) {
+      CreateExpenseRequest request,
+      Group group,
+      List<String> errors) {
     // Check if user who is paying is part of group
     if (!group.hasMember(request.getPaidBy())) {
-      errors.add(
-        "The payer (User ID: " +
-        request.getPaidBy() +
-        ") is not a member of this group."
-      );
+      errors.add("The payer (User ID: " + request.getPaidBy() + ") is not a member of this group.");
     }
     // should I Check if all split userid are part of current group
     if (group.getTotalMemberCount() < request.getSplits().size()) {
-      errors.add(
-        "More number of splits compared to number of members in group"
-      );
+      errors.add("More number of splits compared to number of members in group");
     }
     // Validate all split users
     for (ExpenseSplitDTO split : request.getSplits()) {
       if (!group.hasMember(split.getUserId())) {
         errors.add(
-          "Split user (User ID: " +
-          split.getUserId() +
-          ") is not a member of this group."
-        );
+            "Split user (User ID: " + split.getUserId() + ") is not a member of this group.");
       }
     }
   }
