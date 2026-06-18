@@ -14,13 +14,21 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data
+// @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = { "expense", "user" })
+@EqualsAndHashCode(exclude = { "expense", "user" })
 @Table(name = "expense_splits")
 public class ExpenseSplit {
 
@@ -39,7 +47,7 @@ public class ExpenseSplit {
     @Column(name = "share_in_cents", nullable = false)
     private Double shareInCents; // How much this specific user owes
 
-    public static ExpenseSplitDTO fromEntity(ExpenseSplit split){
+    public static ExpenseSplitDTO fromEntity(ExpenseSplit split) {
         ExpenseSplitDTO ret = new ExpenseSplitDTO();
         ret.setUserId(split.getUser().getId());
         ret.setAmount(split.getShareInCents());

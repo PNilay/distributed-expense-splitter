@@ -31,6 +31,8 @@ public class Group {
 
   private String description;
 
+  private String icon;
+
   @ManyToOne
   @JoinColumn(name = "created_by")
   private User createdBy;
@@ -42,23 +44,21 @@ public class Group {
   private OffsetDateTime createdAt;
 
   @ManyToMany
-  @JoinTable(
-    name = "group_members",
-    joinColumns = @JoinColumn(name = "group_id"),
-    inverseJoinColumns = @JoinColumn(name = "user_id")
-  )
+  @JoinTable(name = "group_members", joinColumns = @JoinColumn(name = "group_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
   @Singular
   private Set<User> members = new HashSet<>();
 
-  public boolean hasMember(Long memberId){
+  public boolean hasMember(Long memberId) {
     return this.members != null && this.members.stream().anyMatch(mem -> mem.getId().equals(memberId));
   }
 
-  public int getTotalMemberCount(){
+  public int getTotalMemberCount() {
     return this.members == null ? 0 : this.members.size();
   }
+
   public static GroupDTO fromEntity(Group group) {
-    if (group == null) return null;
+    if (group == null)
+      return null;
 
     GroupDTO dto = new GroupDTO();
     dto.setId(group.getId());
@@ -66,6 +66,7 @@ public class Group {
     dto.setDescription(group.getDescription());
     dto.setStatus(group.getStatus());
     dto.setCreatedAt(group.getCreatedAt());
+    dto.setIcon(group.getIcon());
     if (group.getCreatedBy() != null) {
       dto.setCreatedBy(group.getCreatedBy().getId());
     }
