@@ -16,7 +16,6 @@ tags:
   - name: Balances
 
 paths:
-
   /welcome:
     get:
       tags:
@@ -25,16 +24,15 @@ paths:
       operationId: getWelcomeMessage
 
       responses:
-        '200':
+        "200":
           description: Welcome message
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WelcomeResponse'
+                $ref: "#/components/schemas/WelcomeResponse"
 
   /users:
-
     post:
       tags:
         - Users
@@ -46,16 +44,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: "#/components/schemas/CreateUserRequest"
 
       responses:
-        '201':
+        "201":
           description: User created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     get:
       tags:
@@ -64,7 +62,7 @@ paths:
       operationId: getUsers
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -73,10 +71,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/UserDTO'
+                  $ref: "#/components/schemas/UserDTO"
 
   /users/{userId}:
-
     get:
       tags:
         - Users
@@ -93,13 +90,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     put:
       tags:
@@ -122,16 +119,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
+              $ref: "#/components/schemas/UpdateUserRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     delete:
       tags:
@@ -149,11 +146,10 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
 
   /groups:
-
     post:
       tags:
         - Groups
@@ -166,16 +162,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupRequest'
+              $ref: "#/components/schemas/CreateGroupRequest"
 
       responses:
-        '201':
+        "201":
           description: Group created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     get:
       tags:
@@ -184,7 +180,7 @@ paths:
       operationId: getGroups
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -193,10 +189,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/GroupDTO'
+                  $ref: "#/components/schemas/GroupDTO"
 
   /groups/{groupId}:
-
     get:
       tags:
         - Groups
@@ -213,13 +208,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     put:
       tags:
@@ -242,16 +237,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupRequest'
+              $ref: "#/components/schemas/CreateGroupRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     delete:
       tags:
@@ -269,11 +264,10 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
 
   /groups/{groupId}/members:
-
     post:
       tags:
         - Groups
@@ -295,10 +289,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddMemberRequest'
+              $ref: "#/components/schemas/AddMemberRequest"
 
       responses:
-        '204':
+        "204":
           description: Added
 
     get:
@@ -317,7 +311,7 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -326,10 +320,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/UserDTO'
+                  $ref: "#/components/schemas/UserDTO"
 
   /groups/{groupId}/members/{userId}:
-
     delete:
       tags:
         - Groups
@@ -354,11 +347,10 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Removed
 
   /expenses:
-
     post:
       tags:
         - Expenses
@@ -371,16 +363,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpenseRequest'
+              $ref: "#/components/schemas/CreateExpenseRequest"
 
       responses:
-        '201':
+        "201":
           description: Expense created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     get:
       tags:
@@ -389,7 +381,7 @@ paths:
       operationId: getExpenses
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -398,10 +390,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/ExpenseDTO'
+                  $ref: "#/components/schemas/ExpenseDTO"
 
   /expenses/{expenseId}:
-
     get:
       tags:
         - Expenses
@@ -418,13 +409,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     put:
       tags:
@@ -447,16 +438,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpenseRequest'
+              $ref: "#/components/schemas/CreateExpenseRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     delete:
       tags:
@@ -474,7 +465,7 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
 
   /expenses/group/{groupId}:
@@ -494,7 +485,7 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -503,10 +494,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/ExpenseDTO'
+                  $ref: "#/components/schemas/ExpenseDTO"
 
   /groups/{groupId}/balances:
-
     get:
       tags:
         - Balances
@@ -523,18 +513,16 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupBalanceResponse'
+                $ref: "#/components/schemas/GroupBalanceResponse"
 
 components:
-
   schemas:
-
     WelcomeResponse:
       type: object
 
@@ -542,7 +530,7 @@ components:
         message:
           type: string
           example: Welcome to Expense Splitter API
-    
+
     UserStatus:
       type: string
       enum:
@@ -565,7 +553,7 @@ components:
           format: email
 
         status:
-          $ref: '#/components/schemas/UserStatus'
+          $ref: "#/components/schemas/UserStatus"
 
         createdAt:
           type: string
@@ -574,7 +562,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-
 
     CreateUserRequest:
       type: object
@@ -586,8 +573,8 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
@@ -600,8 +587,8 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
@@ -633,12 +620,11 @@ components:
           format: int64
 
         status:
-          $ref: '#/components/schemas/GroupStatus'
+          $ref: "#/components/schemas/GroupStatus"
 
         createdAt:
           type: string
-          format: date-time   
-
+          format: date-time
 
     CreateGroupRequest:
       type: object
@@ -650,10 +636,10 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
-          
+
         description:
           type: string
 
@@ -661,7 +647,6 @@ components:
           type: integer
           format: int64
 
-    
     AddMemberRequest:
       type: object
 
@@ -684,7 +669,7 @@ components:
         - SHOPPING
         - OTHER
     SplitType:
-      type: string 
+      type: string
 
       enum:
         - EQUAL
@@ -703,6 +688,7 @@ components:
         groupId:
           type: integer
           format: int64
+          nullable: true
 
         paidBy:
           type: integer
@@ -716,15 +702,15 @@ components:
           format: double
 
         category:
-          $ref: '#/components/schemas/ExpenseCategory'
+          $ref: "#/components/schemas/ExpenseCategory"
 
         currency:
           type: string
           minLength: 3
           maxLength: 3
-          pattern: '^[A-Z]{3}$'
-          description: 'The 3-letter ISO 4217 currency code.'
-          example: 'USD'
+          pattern: "^[A-Z]{3}$"
+          description: "The 3-letter ISO 4217 currency code."
+          example: "USD"
 
         notes:
           type: string
@@ -734,12 +720,12 @@ components:
           format: date-time
 
         splitType:
-          $ref: '#/components/schemas/SplitType'
+          $ref: "#/components/schemas/SplitType"
 
         splits:
           type: array
           items:
-            $ref: '#/components/schemas/ExpenseSplitDTO'
+            $ref: "#/components/schemas/ExpenseSplitDTO"
 
     ExpenseSplitDTO:
       type: object
@@ -757,25 +743,24 @@ components:
           type: number
           format: double
           writeOnly: true
-        
+
         share:
           type: integer
           writeOnly: true
 
       required:
-        - userId 
-      
+        - userId
+
       anyOf:
         - required: [amount]
         - required: [percentage]
         - required: [share]
 
-
     CreateExpenseRequest:
       type: object
 
       required:
-        - groupId
+        # - groupId
         - paidBy
         - amount
         - currency
@@ -800,15 +785,15 @@ components:
           type: string
 
         category:
-          $ref: '#/components/schemas/ExpenseCategory'
+          $ref: "#/components/schemas/ExpenseCategory"
 
         currency:
           type: string
           minLength: 3
           maxLength: 3
-          pattern: '^[A-Z]{3}$'
-          description: 'The 3-letter ISO 4217 currency code.'
-          example: 'USD'
+          pattern: "^[A-Z]{3}$"
+          description: "The 3-letter ISO 4217 currency code."
+          example: "USD"
 
         notes:
           type: string
@@ -818,12 +803,12 @@ components:
           format: date-time
 
         splitType:
-          $ref: '#/components/schemas/SplitType'
+          $ref: "#/components/schemas/SplitType"
 
         splits:
           type: array
           items:
-            $ref: '#/components/schemas/ExpenseSplitDTO'
+            $ref: "#/components/schemas/ExpenseSplitDTO"
     UserBalance:
       type: object
 
@@ -844,4 +829,4 @@ components:
           type: array
 
           items:
-            $ref: '#/components/schemas/UserBalance'
+            $ref: "#/components/schemas/UserBalance"

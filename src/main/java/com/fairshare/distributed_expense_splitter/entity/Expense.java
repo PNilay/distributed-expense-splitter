@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.openapitools.model.ExpenseCategory;
 import org.openapitools.model.ExpenseDTO;
 import org.openapitools.model.SplitType;
@@ -28,7 +29,7 @@ public class Expense {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = true)
   @JoinColumn(name = "group_id")
   private Group group;
 
@@ -59,11 +60,7 @@ public class Expense {
   @NotNull
   private SplitType splitType;
 
-  @OneToMany(
-    mappedBy = "expense",
-    cascade = CascadeType.ALL,
-    orphanRemoval = true
-  )
+  @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
   @NotNull
   private List<ExpenseSplit> splits = new ArrayList<>();
 
@@ -74,16 +71,21 @@ public class Expense {
 
   public void addSplits(List<ExpenseSplit> newSplits) {
     if (newSplits != null) {
-        newSplits.forEach(this::addSplit);
+      newSplits.forEach(this::addSplit);
     }
-}
+  }
 
   public static ExpenseDTO fromEntity(Expense expense) {
-    if (expense == null) return null;
+    if (expense == null)
+      return null;
 
     ExpenseDTO dto = new ExpenseDTO();
     dto.setId(expense.getId());
-    dto.setGroupId(expense.getGroup().getId());
+    // dto.setGroupId(expense.getGroup() != null ? expense.getGroup().getId() :
+    // null);
+    if (expense.getGroup() != null) {
+      dto.setGroupId(JsonNullable.of(expense.getGroup().getId()));
+    }
     dto.setPaidBy(expense.getPaidBy().getId());
     dto.setDescription(expense.getDescription());
     dto.setAmount(expense.getAmount());

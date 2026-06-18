@@ -7,6 +7,7 @@ import com.fairshare.distributed_expense_splitter.entity.ExpenseSplit;
 import com.fairshare.distributed_expense_splitter.entity.Group;
 import com.fairshare.distributed_expense_splitter.entity.User;
 import com.fairshare.distributed_expense_splitter.exception.ExpenseException;
+import com.fairshare.distributed_expense_splitter.helper.ExpenseSplitter;
 import com.fairshare.distributed_expense_splitter.helper.ExpenseValidator;
 import com.fairshare.distributed_expense_splitter.repository.ExpenseRepository;
 import com.fairshare.distributed_expense_splitter.repository.GroupRepository;
@@ -85,8 +86,7 @@ public class ExpenseService {
     Double totalAmount = expenseDto.getAmount();
     SplitType type = expenseDto.getSplitType();
     List<ExpenseSplitDTO> splitDtos = expenseDto.getSplits();
-    int totalUsers = splitDtos.size();
-
+    int idx = 0;
     switch (type) {
       case EXACT:
         for (ExpenseSplitDTO dto : splitDtos) {
@@ -94,34 +94,38 @@ public class ExpenseService {
         }
         break;
       case EQUAL:
-        // TO BE UPDATED LATER TO RESOLVE PENNY PROBLEM
+        List<Double> split_evenly = ExpenseSplitter.splitEvenlyWithCurrency(totalAmount, splitDtos.size(),
+            expenseDto.getCurrency());
+        idx = 0;
         for (ExpenseSplitDTO dto : splitDtos) {
           splits.add(
-              createSplitEntity(dto.getUserId(), totalAmount / totalUsers));
+              createSplitEntity(dto.getUserId(), split_evenly.get(idx)));
+          idx++;
         }
         break;
       case PERCENTAGE:
+        List<Double> percentages = splitDtos.stream().map(ExpenseSplitDTO::getPercentage).toList();
+
+        List<Double> split_by_percentages = ExpenseSplitter.splitByPercentage(totalAmount, percentages,
+            expenseDto.getCurrency());
+
+        idx = 0;
         for (ExpenseSplitDTO dto : splitDtos) {
           splits.add(
               createSplitEntity(
-                  dto.getUserId(),
-                  (dto.getPercentage() * totalAmount) / (100.0)));
+                  dto.getUserId(), split_by_percentages.get(idx)));
+          idx++;
         }
         break;
       case SHARE:
-        // TO BE UPDATED!!
-        // Calculate total share
-        double totalShares = splitDtos
-            .stream()
-            .mapToDouble(ExpenseSplitDTO::getShare)
-            .sum();
+        List<Integer> shares = splitDtos.stream().map(ExpenseSplitDTO::getShare).toList();
+        List<Double> split_by_shares = ExpenseSplitter.splitByShare(totalAmount, shares, expenseDto.getCurrency());
 
         // Calculate portion: totalAmount * (userShares / totalShares)
+        idx = 0;
         for (ExpenseSplitDTO dto : splitDtos) {
-          splits.add(
-              createSplitEntity(
-                  dto.getUserId(),
-                  totalAmount * (dto.getShare() / totalShares)));
+          splits.add(createSplitEntity(dto.getUserId(), split_by_shares.get(idx)));
+          idx++;
         }
         break;
     }
