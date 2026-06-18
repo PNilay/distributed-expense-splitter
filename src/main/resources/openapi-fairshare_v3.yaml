@@ -612,6 +612,9 @@ components:
         name:
           type: string
 
+        icon:
+          type: string
+
         description:
           type: string
 
@@ -641,6 +644,9 @@ components:
           pattern: "^[a-zA-Z\\s'’-]+$"
 
         description:
+          type: string
+
+        icon:
           type: string
 
         createdBy:
