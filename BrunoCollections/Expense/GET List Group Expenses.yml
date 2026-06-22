@@ -5,7 +5,7 @@ info:
 
 http:
   method: get
-  url: http://localhost:8080/v1/api/groups/1/expenses
+  url: http://localhost:8080/v1/api/expenses/group/2
   headers:
     - name: Accept
       value: application/json

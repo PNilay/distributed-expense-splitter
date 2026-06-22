@@ -13,10 +13,19 @@ http:
     type: json
     data: |-
       {
-        "groupId": 1,
+        "groupId": 2,
         "paidBy": 1,
-        "amount": 150.00,
-        "description": "Updated"
+        "amount": 120.00,
+        "description": "Car Rental + Gas",
+        "category": "FOOD",
+        "currency": "USD",
+        "notes": "SUV rental for the weekend (includes fuel fill-up)",
+        "expenseDate": "2026-06-13T16:52:21.640Z",
+        "splitType": "SHARE",
+        "splits": [
+          { "userId": 1, "amount": 100, "percentage": 0, "share": 1 },
+          { "userId": 2, "amount": 20, "percentage": 10, "share": 20 }
+        ]
       }
   auth: inherit
 
