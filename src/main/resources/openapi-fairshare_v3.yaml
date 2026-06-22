@@ -16,7 +16,6 @@ tags:
   - name: Balances
 
 paths:
-
   /welcome:
     get:
       tags:
@@ -25,16 +24,15 @@ paths:
       operationId: getWelcomeMessage
 
       responses:
-        '200':
+        "200":
           description: Welcome message
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WelcomeResponse'
+                $ref: "#/components/schemas/WelcomeResponse"
 
   /users:
-
     post:
       tags:
         - Users
@@ -46,16 +44,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: "#/components/schemas/CreateUserRequest"
 
       responses:
-        '201':
+        "201":
           description: User created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     get:
       tags:
@@ -64,7 +62,7 @@ paths:
       operationId: getUsers
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -73,10 +71,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/UserDTO'
+                  $ref: "#/components/schemas/UserDTO"
 
   /users/{userId}:
-
     get:
       tags:
         - Users
@@ -93,13 +90,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     put:
       tags:
@@ -122,16 +119,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
+              $ref: "#/components/schemas/UpdateUserRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDTO'
+                $ref: "#/components/schemas/UserDTO"
 
     delete:
       tags:
@@ -149,11 +146,89 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
+  /users/{userId}/related:
+    get:
+      tags:
+        - Users
+      summary: Get Related Users
+      description: Returns distinct users sharing a group or an individual expense split context with the target user.
+      operationId: getRelatedUsers
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelatedUserDTO"
+
+  /users/{userId}/activity:
+    get:
+      tags:
+        - Welcome
+      summary: Get User Activity Feed
+      description: Returns a paginated transactional audit log stream detailing actions, creations, adjustments, and updates related to this user's network profile.
+      operationId: getUserActivityFeed
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 15
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityPageDTO"
+
+  /users/{userId}/balance-summary:
+    get:
+      tags:
+        - Balances
+      summary: Get User's Global Balance Summary
+      description: Returns a macro summary of what the user overall owes, is owed, and their net financial standing across all individual and group metrics.
+      operationId: getUserBalanceSummary
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserBalanceSummaryDTO"
 
   /groups:
-
     post:
       tags:
         - Groups
@@ -166,16 +241,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupRequest'
+              $ref: "#/components/schemas/CreateGroupRequest"
 
       responses:
-        '201':
+        "201":
           description: Group created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     get:
       tags:
@@ -184,7 +259,7 @@ paths:
       operationId: getGroups
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -193,10 +268,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/GroupDTO'
+                  $ref: "#/components/schemas/GroupDTO"
 
   /groups/{groupId}:
-
     get:
       tags:
         - Groups
@@ -213,13 +287,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     put:
       tags:
@@ -242,16 +316,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupRequest'
+              $ref: "#/components/schemas/CreateGroupRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                $ref: "#/components/schemas/GroupDTO"
 
     delete:
       tags:
@@ -269,11 +343,10 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
 
   /groups/{groupId}/members:
-
     post:
       tags:
         - Groups
@@ -295,10 +368,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddMemberRequest'
+              $ref: "#/components/schemas/AddMemberRequest"
 
       responses:
-        '204':
+        "204":
           description: Added
 
     get:
@@ -317,7 +390,7 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -326,10 +399,9 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/UserDTO'
+                  $ref: "#/components/schemas/UserDTO"
 
   /groups/{groupId}/members/{userId}:
-
     delete:
       tags:
         - Groups
@@ -354,11 +426,10 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Removed
 
   /expenses:
-
     post:
       tags:
         - Expenses
@@ -371,16 +442,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpenseRequest'
+              $ref: "#/components/schemas/CreateExpenseRequest"
 
       responses:
-        '201':
+        "201":
           description: Expense created
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     get:
       tags:
@@ -389,7 +460,7 @@ paths:
       operationId: getExpenses
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -398,10 +469,33 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/ExpenseDTO'
+                  $ref: "#/components/schemas/ExpenseDTO"
+
+  /groups/{groupId}/simplified-debts:
+    get:
+      tags:
+        - Balances
+      summary: Get Simplified Group Debts
+      description: Computes and returns the optimized, minimized payment transactions needed to completely settle the entire group's net standing.
+      operationId: getSimplifiedDebts
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OptimizedTransactionDTO"
 
   /expenses/{expenseId}:
-
     get:
       tags:
         - Expenses
@@ -418,13 +512,13 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     put:
       tags:
@@ -447,16 +541,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExpenseRequest'
+              $ref: "#/components/schemas/CreateExpenseRequest"
 
       responses:
-        '200':
+        "200":
           description: Updated
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExpenseDTO'
+                $ref: "#/components/schemas/ExpenseDTO"
 
     delete:
       tags:
@@ -474,7 +568,7 @@ paths:
             format: int64
 
       responses:
-        '204':
+        "204":
           description: Deleted
 
   /expenses/group/{groupId}:
@@ -494,7 +588,7 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
@@ -503,10 +597,65 @@ paths:
                 type: array
 
                 items:
-                  $ref: '#/components/schemas/ExpenseDTO'
+                  $ref: "#/components/schemas/ExpenseDTO"
+  /expenses/user/{userId}:
+    get:
+      tags:
+        - Expenses
+      summary: Get Paginated Expenses for User
+      description: Fetches a combined list of individual (non-group) and group expenses where the user is either the payer or a participant in the split list.
+      operationId: getUserExpensesPaginated
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          required: false
+          description: Zero-indexed page number
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          description: Size of page payload allocation
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpensePageDTO"
+
+  /expenses/settle:
+    post:
+      tags:
+        - Expenses
+      summary: Record a settlement payment
+      description: Logs a peer-to-peer payment transaction (e.g., Cash, Venmo, PayPal) to clear or reduce balances between two specific users.
+      operationId: settleDebt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettlementRequest"
+      responses:
+        "201":
+          description: Settlement recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpenseDTO"
 
   /groups/{groupId}/balances:
-
     get:
       tags:
         - Balances
@@ -523,18 +672,16 @@ paths:
             format: int64
 
       responses:
-        '200':
+        "200":
           description: Success
 
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupBalanceResponse'
+                $ref: "#/components/schemas/GroupBalanceResponse"
 
 components:
-
   schemas:
-
     WelcomeResponse:
       type: object
 
@@ -542,7 +689,7 @@ components:
         message:
           type: string
           example: Welcome to Expense Splitter API
-    
+
     UserStatus:
       type: string
       enum:
@@ -565,7 +712,7 @@ components:
           format: email
 
         status:
-          $ref: '#/components/schemas/UserStatus'
+          $ref: "#/components/schemas/UserStatus"
 
         createdAt:
           type: string
@@ -574,7 +721,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-
 
     CreateUserRequest:
       type: object
@@ -586,8 +732,8 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
@@ -600,8 +746,8 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
 
         email:
@@ -625,6 +771,9 @@ components:
         name:
           type: string
 
+        icon:
+          type: string
+
         description:
           type: string
 
@@ -633,12 +782,11 @@ components:
           format: int64
 
         status:
-          $ref: '#/components/schemas/GroupStatus'
+          $ref: "#/components/schemas/GroupStatus"
 
         createdAt:
           type: string
-          format: date-time   
-
+          format: date-time
 
     CreateGroupRequest:
       type: object
@@ -650,18 +798,20 @@ components:
       properties:
         name:
           type: string
-          minLength: 2   # Automatically generates @Size(min = 2)
-          maxLength: 50  # Automatically generates @Size(max = 50)
+          minLength: 2 # Automatically generates @Size(min = 2)
+          maxLength: 50 # Automatically generates @Size(max = 50)
           pattern: "^[a-zA-Z\\s'’-]+$"
-          
+
         description:
+          type: string
+
+        icon:
           type: string
 
         createdBy:
           type: integer
           format: int64
 
-    
     AddMemberRequest:
       type: object
 
@@ -683,6 +833,14 @@ components:
         - UTILITIES
         - SHOPPING
         - OTHER
+    SplitType:
+      type: string
+
+      enum:
+        - EQUAL
+        - EXACT
+        - PERCENTAGE
+        - SHARE
 
     ExpenseDTO:
       type: object
@@ -695,6 +853,7 @@ components:
         groupId:
           type: integer
           format: int64
+          nullable: true
 
         paidBy:
           type: integer
@@ -708,15 +867,15 @@ components:
           format: double
 
         category:
-          $ref: '#/components/schemas/ExpenseCategory'
+          $ref: "#/components/schemas/ExpenseCategory"
 
         currency:
           type: string
           minLength: 3
           maxLength: 3
-          pattern: '^[A-Z]{3}$'
-          description: 'The 3-letter ISO 4217 currency code.'
-          example: 'USD'
+          pattern: "^[A-Z]{3}$"
+          description: "The 3-letter ISO 4217 currency code."
+          example: "USD"
 
         notes:
           type: string
@@ -725,10 +884,13 @@ components:
           type: string
           format: date-time
 
+        splitType:
+          $ref: "#/components/schemas/SplitType"
+
         splits:
           type: array
           items:
-            $ref: '#/components/schemas/ExpenseSplitDTO'
+            $ref: "#/components/schemas/ExpenseSplitDTO"
 
     ExpenseSplitDTO:
       type: object
@@ -742,16 +904,34 @@ components:
           type: number
           format: double
 
+        percentage:
+          type: number
+          format: double
+          writeOnly: true
+
+        share:
+          type: integer
+          writeOnly: true
+
+      required:
+        - userId
+
+      anyOf:
+        - required: [amount]
+        - required: [percentage]
+        - required: [share]
+
     CreateExpenseRequest:
       type: object
 
       required:
-        - groupId
+        # - groupId
         - paidBy
         - amount
         - currency
         - splits
         - expenseDate
+        - splitType
 
       properties:
         groupId:
@@ -770,15 +950,15 @@ components:
           type: string
 
         category:
-          $ref: '#/components/schemas/ExpenseCategory'
+          $ref: "#/components/schemas/ExpenseCategory"
 
         currency:
           type: string
           minLength: 3
           maxLength: 3
-          pattern: '^[A-Z]{3}$'
-          description: 'The 3-letter ISO 4217 currency code.'
-          example: 'USD'
+          pattern: "^[A-Z]{3}$"
+          description: "The 3-letter ISO 4217 currency code."
+          example: "USD"
 
         notes:
           type: string
@@ -787,10 +967,13 @@ components:
           type: string
           format: date-time
 
+        splitType:
+          $ref: "#/components/schemas/SplitType"
+
         splits:
           type: array
           items:
-            $ref: '#/components/schemas/ExpenseSplitDTO'
+            $ref: "#/components/schemas/ExpenseSplitDTO"
     UserBalance:
       type: object
 
@@ -811,4 +994,164 @@ components:
           type: array
 
           items:
-            $ref: '#/components/schemas/UserBalance'
+            $ref: "#/components/schemas/UserBalance"
+
+    RelationshipContext:
+      type: string
+      enum:
+        - GROUP
+        - INDIVIDUAL
+        - BOTH
+
+    RelatedUserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        status:
+          $ref: "#/components/schemas/UserStatus"
+        relationshipContext:
+          $ref: "#/components/schemas/RelationshipContext"
+
+    ExpensePageDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExpenseDTO"
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        isLast:
+          type: boolean
+
+    SettlementRequest:
+      type: object
+      required:
+        - fromUserId
+        - toUserId
+        - amount
+        - currency
+        - settlementDate
+      properties:
+        groupId:
+          type: integer
+          format: int64
+          nullable: true
+          description: Optional field if settling a debt exclusively inside a specific group scope.
+        fromUserId:
+          type: integer
+          format: int64
+          description: The user paying back the debt (the borrower).
+        toUserId:
+          type: integer
+          format: int64
+          description: The user receiving the settlement payment (the lender).
+        amount:
+          type: number
+          format: double
+          example: 25.50
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          pattern: "^[A-Z]{3}$"
+          example: "USD"
+        notes:
+          type: string
+          example: "Paid back via Venmo"
+        settlementDate:
+          type: string
+          format: date-time
+
+    UserBalanceSummaryDTO:
+      type: object
+      properties:
+        totalOwedToYou:
+          type: number
+          format: double
+          description: Cumulative positive balance sum of what others owe this user.
+          example: 180.00
+        totalYouOwe:
+          type: number
+          format: double
+          description: Cumulative negative balance absolute value of what this user owes others.
+          example: 45.50
+        netBalance:
+          type: number
+          format: double
+          description: Net financial standing (totalOwedToYou - totalYouOwe).
+          example: 134.50
+
+    OptimizedTransactionDTO:
+      type: object
+      properties:
+        fromUserId:
+          type: integer
+          format: int64
+          description: Who needs to send money.
+        toUserId:
+          type: integer
+          format: int64
+          description: Who should receive the money.
+        amount:
+          type: number
+          format: double
+          example: 15.00
+
+    ActivityDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        actorUserId:
+          type: integer
+          format: int64
+          description: The user who performed the action.
+        description:
+          type: string
+          example: "John Doe added the expense 'Ski Rental' to 'Winter Trip 2026'"
+        relatedGroupId:
+          type: integer
+          format: int64
+          nullable: true
+        relatedExpenseId:
+          type: integer
+          format: int64
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+
+    ActivityPageDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityDTO"
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+        isLast:
+          type: boolean
