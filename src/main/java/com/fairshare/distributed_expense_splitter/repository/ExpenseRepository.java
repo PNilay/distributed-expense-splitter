@@ -2,6 +2,8 @@ package com.fairshare.distributed_expense_splitter.repository;
 
 import com.fairshare.distributed_expense_splitter.entity.Expense;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +22,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 	// Finds all payer IDs of expenses where the current user is a participant
 	@Query("SELECT DISTINCT e.paidBy.id FROM Expense e JOIN e.splits s WHERE s.user.id = :userId")
 	List<Long> findExpensePayerIdsWhereUserIsParticipant(@Param("userId") Long userId);
+
+	@Query("SELECT DISTINCT e FROM Expense e LEFT JOIN e.splits s WHERE e.paidBy.id = :userId OR s.user.id = :userId")
+	Page<Expense> findByUserId(@Param("userId") Long userId, Pageable pageable);
 }

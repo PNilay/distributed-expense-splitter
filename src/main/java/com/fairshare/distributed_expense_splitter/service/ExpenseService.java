@@ -20,8 +20,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openapitools.model.CreateExpenseRequest;
 import org.openapitools.model.ExpenseDTO;
+import org.openapitools.model.ExpensePageDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.openapitools.model.ExpenseSplitDTO;
 import org.openapitools.model.SplitType;
+import org.openapitools.model.SettlementRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -202,5 +207,58 @@ public class ExpenseService {
         .orElseThrow(() -> new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND));
     List<Expense> list = expenseRepository.findByGroupId(groupId);
     return list.stream().map(expense -> Expense.fromEntity(expense)).toList();
+  }
+
+  public ExpensePageDTO getUserExpensesPaginated(Long userId, Integer page, Integer size) {
+    // validate user exists
+    userRepository
+        .findById(userId)
+        .orElseThrow(() -> new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
+
+    PageRequest pr = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "expenseDate"));
+    Page<Expense> p = expenseRepository.findByUserId(userId, pr);
+
+    ExpensePageDTO dto = new ExpensePageDTO();
+    List<ExpenseDTO> content = p.getContent().stream().map(Expense::fromEntity).toList();
+    dto.setContent(content);
+    dto.setPageNumber(p.getNumber());
+    dto.setPageSize(p.getSize());
+    dto.setTotalElements(p.getTotalElements());
+    dto.setTotalPages(p.getTotalPages());
+    dto.setIsLast(p.isLast());
+    return dto;
+  }
+
+  @Transactional
+  public ExpenseDTO settleDebt(SettlementRequest req) {
+    // validate users
+    User from = userRepository
+        .findById(req.getFromUserId())
+        .orElseThrow(() -> new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
+    User to = userRepository
+        .findById(req.getToUserId())
+        .orElseThrow(() -> new ExpenseException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
+
+    Expense expense = new Expense();
+    if (req.getGroupId() != null) {
+      Long groupId = req.getGroupId().get();
+      Group g = groupRepository
+          .findById(groupId)
+          .orElseThrow(() -> new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND));
+      expense.setGroup(g);
+    }
+
+    expense.setPaidBy(from);
+    expense.setAmount(req.getAmount());
+    expense.setCurrency(req.getCurrency());
+    expense.setExpenseDate(req.getSettlementDate());
+    expense.setDescription(req.getNotes() != null ? req.getNotes() : "Settlement");
+    expense.setSplitType(SplitType.EXACT);
+
+    // single split representing the settlement receiver
+    expense.addSplit(createSplitEntity(req.getToUserId(), req.getAmount()));
+
+    Expense saved = expenseRepository.save(expense);
+    return Expense.fromEntity(saved);
   }
 }

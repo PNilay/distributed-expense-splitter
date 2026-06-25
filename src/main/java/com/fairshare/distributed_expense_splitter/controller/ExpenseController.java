@@ -8,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.openapitools.api.ExpensesApi;
 import org.openapitools.model.CreateExpenseRequest;
 import org.openapitools.model.ExpenseDTO;
+import org.openapitools.model.SettlementRequest;
+import org.openapitools.model.ExpensePageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -83,5 +85,22 @@ public class ExpenseController implements ExpensesApi {
   ) {
     List<ExpenseDTO> list = expenseService.getGroupExpenses(groupId);
     return ResponseEntity.ok(list);
+  }
+
+  @PostMapping("/expenses/settle")
+  public ResponseEntity<ExpenseDTO> settleDebt(@Valid @RequestBody SettlementRequest settlementRequest) {
+    ExpenseDTO res = expenseService.settleDebt(settlementRequest);
+    return new ResponseEntity<>(res, HttpStatus.CREATED);
+  }
+
+  @GetMapping("/expenses/user/{userId}")
+  @Override
+  public ResponseEntity<ExpensePageDTO> getUserExpensesPaginated(
+      @PathVariable("userId") Long userId,
+      @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
+      @RequestParam(value = "size", required = false, defaultValue = "20") Integer size
+  ) {
+    ExpensePageDTO pageDto = expenseService.getUserExpensesPaginated(userId, page, size);
+    return ResponseEntity.ok(pageDto);
   }
 }
