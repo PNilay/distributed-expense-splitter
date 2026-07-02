@@ -175,7 +175,7 @@ paths:
   /users/{userId}/activity:
     get:
       tags:
-        - Welcome
+        - Users
       summary: Get User Activity Feed
       description: Returns a paginated transactional audit log stream detailing actions, creations, adjustments, and updates related to this user's network profile.
       operationId: getUserActivityFeed
@@ -428,6 +428,58 @@ paths:
       responses:
         "204":
           description: Removed
+
+  /groups/{groupId}/summary:
+    get:
+      tags:
+        - Groups
+      summary: Fetch group summary dashboard information
+      description: |
+        Returns core group details, expense counts, and calculated simplified debt balances.
+        The `currentUserBalance` object is calculated dynamically based on the identity of the 
+        calling user extracted from the Authorization token.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          description: The ID of the group to retrieve
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successfully retrieved group summary for the calling user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupSummaryDTO"
+        "401":
+          description: Unauthorized. Missing or invalid token.
+
+  /groups/summaries:
+    get:
+      tags:
+        - Groups
+      summary: Fetch group summary dashboard information
+      description: |
+        Returns core group details, expense counts, and calculated simplified debt balances.
+        The `currentUserBalance` object is calculated dynamically based on the identity of the 
+        calling user extracted from the Authorization token.
+      security:
+        - BearerAuth: []
+
+      responses:
+        "200":
+          description: Successfully retrieved group summary for the calling user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupSummaryDTO"
+        "401":
+          description: Unauthorized. Missing or invalid token.
 
   /expenses:
     post:
@@ -1155,3 +1207,88 @@ components:
           type: integer
         isLast:
           type: boolean
+
+    GroupSummaryDTO:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - icon
+        - status
+        - createdAt
+        - createdBy
+        - expenseCount
+        - currentUserBalance
+        - members
+        - simplifiedDebts
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Weekend Updated"
+        description:
+          type: string
+          example: "description Updated"
+        icon:
+          type: string
+          example: "🚀"
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+          example: "ACTIVE"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-06-14T21:05:16.052507Z"
+        createdBy:
+          type: integer
+          example: 1
+        expenseCount:
+          type: integer
+          example: 14
+        currentUserBalance:
+          $ref: "#/components/schemas/CurrentUserBalance"
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDTO"
+        simplifiedDebts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimplifiedDebt"
+
+    CurrentUserBalance:
+      type: object
+      required:
+        - amount
+        - status
+      properties:
+        amount:
+          type: number
+          format: float
+          example: -15.50
+        status:
+          type: string
+          enum: [OWES, OWED, SETTLED]
+          example: "OWES"
+
+    SimplifiedDebt:
+      type: object
+      required:
+        - fromUserId
+        - toUserId
+        - amount
+      properties:
+        fromUserId:
+          type: integer
+          example: 2
+        toUserId:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 15.50
