@@ -853,7 +853,7 @@ components:
         groupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
 
         paidBy:
           type: integer
@@ -1050,7 +1050,7 @@ components:
         groupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
           description: Optional field if settling a debt exclusively inside a specific group scope.
         fromUserId:
           type: integer
@@ -1128,11 +1128,11 @@ components:
         relatedGroupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
         relatedExpenseId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
         timestamp:
           type: string
           format: date-time

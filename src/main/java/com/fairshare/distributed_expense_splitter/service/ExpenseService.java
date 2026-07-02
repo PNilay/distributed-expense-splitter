@@ -241,7 +241,7 @@ public class ExpenseService {
 
     Expense expense = new Expense();
     if (req.getGroupId() != null) {
-      Long groupId = req.getGroupId().get();
+      Long groupId = req.getGroupId();
       Group g = groupRepository
           .findById(groupId)
           .orElseThrow(() -> new ExpenseException("Service.GROUP_NOT_FOUND", ErrorCode.GROUP_NOT_FOUND));
