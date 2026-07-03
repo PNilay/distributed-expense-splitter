@@ -25,18 +25,15 @@ public class ExpenseController implements ExpensesApi {
   }
 
   private static final Logger LOGGER = LogManager.getLogger(
-    ExpenseController.class
-  );
+      ExpenseController.class);
 
   @Override
   @PostMapping("/expenses")
   public ResponseEntity<ExpenseDTO> createExpense(
-    @Valid @RequestBody CreateExpenseRequest createExpenseRequest
-  ) {
+      @Valid @RequestBody CreateExpenseRequest createExpenseRequest) {
     LOGGER.info(
-      "Expense creation request request recived for group_id = ",
-      createExpenseRequest.getGroupId()
-    );
+        "Expense creation request received for group_id = {}",
+        createExpenseRequest.getGroupId());
 
     ExpenseDTO res = expenseService.createExpense(createExpenseRequest);
     return new ResponseEntity<>(res, HttpStatus.CREATED);
@@ -53,8 +50,7 @@ public class ExpenseController implements ExpensesApi {
   @GetMapping("/expenses/{expenseId}")
   @Override
   public ResponseEntity<ExpenseDTO> getExpense(
-    @PathVariable("expenseId") Long expenseId
-  ) {
+      @PathVariable("expenseId") Long expenseId) {
     ExpenseDTO dto = expenseService.getExpense(expenseId);
     return ResponseEntity.ok(dto);
   }
@@ -62,9 +58,8 @@ public class ExpenseController implements ExpensesApi {
   @PutMapping("/expenses/{expenseId}")
   @Override
   public ResponseEntity<ExpenseDTO> updateExpense(
-    @PathVariable("expenseId") Long expenseId,
-    @Valid @RequestBody CreateExpenseRequest req
-  ) {
+      @PathVariable("expenseId") Long expenseId,
+      @Valid @RequestBody CreateExpenseRequest req) {
     ExpenseDTO res = expenseService.updateExpense(expenseId, req);
     return ResponseEntity.ok(res);
   }
@@ -72,19 +67,9 @@ public class ExpenseController implements ExpensesApi {
   @DeleteMapping("/expenses/{expenseId}")
   @Override
   public ResponseEntity<Void> deleteExpense(
-    @PathVariable("expenseId") Long expenseId
-  ) {
+      @PathVariable("expenseId") Long expenseId) {
     expenseService.deleteExpense(expenseId);
     return ResponseEntity.noContent().build();
-  }
-
-  @GetMapping("/expenses/group/{groupId}")
-  @Override
-  public ResponseEntity<List<ExpenseDTO>> getGroupExpenses(
-    @PathVariable("groupId") Long groupId
-  ) {
-    List<ExpenseDTO> list = expenseService.getGroupExpenses(groupId);
-    return ResponseEntity.ok(list);
   }
 
   @PostMapping("/expenses/settle")
@@ -98,8 +83,7 @@ public class ExpenseController implements ExpensesApi {
   public ResponseEntity<ExpensePageDTO> getUserExpensesPaginated(
       @PathVariable("userId") Long userId,
       @RequestParam(value = "page", required = false, defaultValue = "0") Integer page,
-      @RequestParam(value = "size", required = false, defaultValue = "20") Integer size
-  ) {
+      @RequestParam(value = "size", required = false, defaultValue = "20") Integer size) {
     ExpensePageDTO pageDto = expenseService.getUserExpensesPaginated(userId, page, size);
     return ResponseEntity.ok(pageDto);
   }
