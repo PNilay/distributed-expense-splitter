@@ -100,6 +100,16 @@ public class UserController implements UsersApi {
     return ResponseEntity.ok(list);
   }
 
+  @GetMapping("/users/{userId}/activity")
+  public ResponseEntity<ActivityPageDTO> getUserActivityFeed(
+      @PathVariable("userId") Long userId,
+      @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+      @RequestParam(name = "size", required = false, defaultValue = "15") Integer size) {
+    LOGGER.info("Activity feed request for userId {} page {} size {}", userId, page, size);
+    ActivityPageDTO pageDto = userService.getUserActivityFeed(userId, page, size);
+    return ResponseEntity.ok(pageDto);
+  }
+
   @GetMapping("/users/{userId}/balance-summary")
   public ResponseEntity<UserBalanceSummaryDTO> getUserBalanceSummary(@PathVariable("userId") Long userId) {
     LOGGER.info("Balance summary request for userId {}", userId);

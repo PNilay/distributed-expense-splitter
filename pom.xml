@@ -115,6 +115,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.6</version>
+		</dependency>
+
 	</dependencies>
 
 
@@ -196,6 +202,7 @@
 								<!-- <delegatePattern>true</delegatePattern> -->
 								<!-- <unhandledException>true</unhandledException> -->
 								<!-- <documentationProvider>springdoc</documentationProvider> -->
+								<openApiNullable>true</openApiNullable>
 							</configOptions>
 						</configuration>
 					</execution>

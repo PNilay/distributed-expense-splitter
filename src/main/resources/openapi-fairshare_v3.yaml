@@ -175,7 +175,7 @@ paths:
   /users/{userId}/activity:
     get:
       tags:
-        - Welcome
+        - Users
       summary: Get User Activity Feed
       description: Returns a paginated transactional audit log stream detailing actions, creations, adjustments, and updates related to this user's network profile.
       operationId: getUserActivityFeed
@@ -429,6 +429,108 @@ paths:
         "204":
           description: Removed
 
+  /groups/{groupId}/summary:
+    get:
+      tags:
+        - Groups
+      summary: Fetch group summary dashboard information
+      description: |
+        Returns core group details, expense counts, and calculated simplified debt balances.
+        The `currentUserBalance` object is calculated dynamically based on the identity of the 
+        calling user extracted from the Authorization token.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          description: The ID of the group to retrieve
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successfully retrieved group summary for the calling user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupSummaryDTO"
+        "401":
+          description: Unauthorized. Missing or invalid token.
+
+  /groups/summaries:
+    get:
+      tags:
+        - Groups
+      summary: Fetch group summary dashboard information
+      description: |
+        Returns core group details, expense counts, and calculated simplified debt balances.
+        The `currentUserBalance` object is calculated dynamically based on the identity of the 
+        calling user extracted from the Authorization token.
+      security:
+        - BearerAuth: []
+
+      responses:
+        "200":
+          description: Successfully retrieved group summary for the calling user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GroupSummaryDTO"
+        "401":
+          description: Unauthorized. Missing or invalid token.
+
+  /groups/{groupId}/expenses:
+    get:
+      tags:
+        - Groups
+      summary: Get Group Expenses
+      operationId: getGroupExpenses
+
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          description: The unique identifier of the Splitwise group.
+          schema:
+            type: integer
+            format: int64
+            example: 123
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of expense records to return.
+          schema:
+            type: integer
+            default: 20
+            example: 20
+        - name: before_id
+          in: query
+          required: false
+          description: The ID cursor used to fetch older elements (scrolling down). Returns records where ID < before_id.
+          schema:
+            type: integer
+            format: int64
+            example: 842
+        - name: after_id
+          in: query
+          required: false
+          description: The ID cursor used to fetch newer elements (scrolling up). Returns records where ID > after_id.
+          schema:
+            type: integer
+            format: int64
+            example: 862
+
+      responses:
+        "200":
+          description: Success
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpenseListDTO"
+
   /expenses:
     post:
       tags:
@@ -571,33 +673,6 @@ paths:
         "204":
           description: Deleted
 
-  /expenses/group/{groupId}:
-    get:
-      tags:
-        - Expenses
-      summary: Get Group Expenses
-      operationId: getGroupExpenses
-
-      parameters:
-        - name: groupId
-          in: path
-          required: true
-
-          schema:
-            type: integer
-            format: int64
-
-      responses:
-        "200":
-          description: Success
-
-          content:
-            application/json:
-              schema:
-                type: array
-
-                items:
-                  $ref: "#/components/schemas/ExpenseDTO"
   /expenses/user/{userId}:
     get:
       tags:
@@ -853,7 +928,7 @@ components:
         groupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
 
         paidBy:
           type: integer
@@ -1038,6 +1113,24 @@ components:
         isLast:
           type: boolean
 
+    ExpenseListDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExpenseDTO"
+        hasMoreOlder:
+          type: boolean
+        hasMoreNewer:
+          type: boolean
+        startCursor:
+          type: integer
+          format: int64
+        endCursor:
+          type: integer
+          format: int64
+
     SettlementRequest:
       type: object
       required:
@@ -1050,7 +1143,7 @@ components:
         groupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
           description: Optional field if settling a debt exclusively inside a specific group scope.
         fromUserId:
           type: integer
@@ -1128,11 +1221,11 @@ components:
         relatedGroupId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
         relatedExpenseId:
           type: integer
           format: int64
-          nullable: true
+          # nullable: true
         timestamp:
           type: string
           format: date-time
@@ -1155,3 +1248,88 @@ components:
           type: integer
         isLast:
           type: boolean
+
+    GroupSummaryDTO:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - icon
+        - status
+        - createdAt
+        - createdBy
+        - expenseCount
+        - currentUserBalance
+        - members
+        - simplifiedDebts
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Weekend Updated"
+        description:
+          type: string
+          example: "description Updated"
+        icon:
+          type: string
+          example: "🚀"
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+          example: "ACTIVE"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-06-14T21:05:16.052507Z"
+        createdBy:
+          type: integer
+          example: 1
+        expenseCount:
+          type: integer
+          example: 14
+        currentUserBalance:
+          $ref: "#/components/schemas/CurrentUserBalance"
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDTO"
+        simplifiedDebts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimplifiedDebt"
+
+    CurrentUserBalance:
+      type: object
+      required:
+        - amount
+        - status
+      properties:
+        amount:
+          type: number
+          format: float
+          example: -15.50
+        status:
+          type: string
+          enum: [OWES, OWED, SETTLED]
+          example: "OWES"
+
+    SimplifiedDebt:
+      type: object
+      required:
+        - fromUserId
+        - toUserId
+        - amount
+      properties:
+        fromUserId:
+          type: integer
+          example: 2
+        toUserId:
+          type: integer
+          example: 1
+        amount:
+          type: number
+          format: float
+          example: 15.50

@@ -1,11 +1,8 @@
 package com.fairshare.distributed_expense_splitter.helper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
-
-import org.openapitools.model.ExpenseSplitDTO;
 
 public class ExpenseSplitter {
 
@@ -26,15 +23,11 @@ public class ExpenseSplitter {
         List<Long> individualShares = new ArrayList<>();
 
         for (int i = 0; i < numPeople; i++) {
-            individualShares.add(baseShare);
-            if (i < leftoverUnits) {
-                individualShares.set(i, individualShares.get(i) + 1);
-            }
+            long share = baseShare + (i < leftoverUnits ? 1 : 0);
+            individualShares.add(share);
         }
 
-        Collections.shuffle(individualShares);
-
-        // 6. Convert back to standard decimal doubles for database/DTOs
+        // Convert back to standard decimal doubles for database/DTOs
         List<Double> finalSplits = new ArrayList<>();
         for (long minorUnits : individualShares) {
             finalSplits.add(minorUnits / (double) multiplier);

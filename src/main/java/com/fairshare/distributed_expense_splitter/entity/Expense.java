@@ -7,6 +7,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,7 +62,7 @@ public class Expense {
   @NotNull
   private SplitType splitType;
 
-  @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   @NotNull
   private List<ExpenseSplit> splits = new ArrayList<>();
 
@@ -81,11 +83,11 @@ public class Expense {
 
     ExpenseDTO dto = new ExpenseDTO();
     dto.setId(expense.getId());
-    // dto.setGroupId(expense.getGroup() != null ? expense.getGroup().getId() :
-    // null);
-    if (expense.getGroup() != null) {
-      dto.setGroupId(JsonNullable.of(expense.getGroup().getId()));
-    }
+    dto.setGroupId(
+        expense.getGroup() != null
+            ? expense.getGroup().getId()
+            : null);
+
     dto.setPaidBy(expense.getPaidBy().getId());
     dto.setDescription(expense.getDescription());
     dto.setAmount(expense.getAmount());
