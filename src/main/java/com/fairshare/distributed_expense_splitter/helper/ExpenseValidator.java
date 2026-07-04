@@ -19,8 +19,8 @@ public class ExpenseValidator {
     validateTotalAmount(request.getAmount(), errors);
     validateSplitsAndMath(request, errors);
 
-    // // 2. Relationship/Membership Validations (Context-Dependent)
-    if (errors.isEmpty()) { // Only do DB/Group checks if the math is valid
+    // 2. Relationship/Membership Validations (Context-Dependent)
+    if (errors.isEmpty() && group != null) {
       validateGroupMembership(request, group, errors);
     }
 
