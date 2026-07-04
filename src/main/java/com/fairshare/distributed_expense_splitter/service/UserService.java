@@ -137,6 +137,46 @@ public class UserService {
     return out;
   }
 
+  public ActivityPageDTO getUserActivityFeed(Long userId, int page, int size) {
+    userRepository
+        .findById(userId)
+        .orElseThrow(() -> new UserException("Service.USER_NOT_FOUND", ErrorCode.USER_NOT_FOUND));
+
+    List<Expense> all = expenseRepository.findAll().stream()
+        .filter(e -> e.getPaidBy().getId().equals(userId)
+            || e.getSplits().stream().anyMatch(s -> s.getUser().getId().equals(userId)))
+        .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+        .toList();
+
+    int total = all.size();
+    int from = Math.min(page * size, total);
+    int to = Math.min(from + size, total);
+    List<Expense> slice = all.subList(from, to);
+
+    List<ActivityDTO> content = new ArrayList<>();
+    for (Expense e : slice) {
+      ActivityDTO a = new ActivityDTO();
+      a.setId(e.getId());
+      a.setActorUserId(e.getPaidBy().getId());
+      String desc = String.format("%s added the expense '%s'", e.getPaidBy().getName(), e.getDescription());
+      a.setDescription(desc);
+      a.setRelatedExpenseId(e.getId());
+      a.setRelatedGroupId(e.getGroup() != null ? e.getGroup().getId() : null);
+      a.setTimestamp(e.getCreatedAt());
+      content.add(a);
+    }
+
+    ActivityPageDTO pageDto = new ActivityPageDTO();
+    pageDto.setContent(content);
+    pageDto.setPageNumber(page);
+    pageDto.setPageSize(size);
+    pageDto.setTotalElements((long) total);
+    int totalPages = (int) Math.ceil((double) total / (double) size);
+    pageDto.setTotalPages(totalPages);
+    pageDto.setIsLast(page >= totalPages - 1);
+    return pageDto;
+  }
+
   public UserBalanceSummaryDTO getUserBalanceSummary(Long userId) {
     userRepository
         .findById(userId)
